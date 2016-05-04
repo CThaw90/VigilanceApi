@@ -1,0 +1,7 @@
+# JetBrains PhpStorm
+# -------------------
+.idea
+
+# Ignored Folders
+# ---------------
+.ignore
