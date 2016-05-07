@@ -1,14 +1,14 @@
 <?php
 
-class PostController {
-
-	private $post;
+class OrganizationController {
+	
+	private $prganization;
 	public function __construct() {
-		$this->post = new Post();
+		$this->organization = new Organization();
 	}
 
 	public function all () {
-		return $this->post->get_all();
+		return $this->organization->get_all();
 	}
 
 	public function get($id) {

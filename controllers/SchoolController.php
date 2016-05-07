@@ -1,14 +1,14 @@
 <?php
 
-class PostController {
-
-	private $post;
+class SchoolController {
+	
+	private $school;
 	public function __construct() {
-		$this->post = new Post();
+		$this->school = new School();
 	}
 
 	public function all () {
-		return $this->post->get_all();
+		return $this->school->get_all();
 	}
 
 	public function get($id) {
