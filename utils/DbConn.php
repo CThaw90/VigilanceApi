@@ -21,8 +21,6 @@ class DbConn {
 			array_push($result, $row);
 		}
 
-		#$result = mysqli_fetch_all(mysqli_query($this->connection, $query));
-
 		return json_encode($result);
 	}
 

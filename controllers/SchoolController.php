@@ -12,9 +12,6 @@ class SchoolController {
 	}
 
 	public function get($id) {
-		$db = new DbConn();
-		$db->conn();
-		$db->close();
-		return $id;
+		return $this->school->get_by_id($id);
 	}
 }

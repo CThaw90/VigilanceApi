@@ -1,11 +1,10 @@
 <?php
 
-class Post {
+class Comment {
 	
-	private $GET_ALL = "select * from post p inner join credential u on u.credential_id = p.credential_id";
-	private $GET_POST_BY_ID = 'select * from post where post_id = ${1}';
+	private $GET_COMMENT_BY_ID = 'select * from comment where comment_id = ${1}';
+	private $GET_ALL = "select * from comment";
 	private $db;
-
 	public function __construct () {
 		$this->db = new DbConn();
 		$this->db->conn();
@@ -16,7 +15,7 @@ class Post {
 	}
 
 	public function get_by_id ($id) {
-		return $this->db->select(preg_replace("/(\d+)/", $this->GET_POST_BY_ID, $id));
+		return $this->db->select(preg_replace("/(\d+)/", $this->GET_COMMENT_BY_ID, $id));
 	}
 
 	function __destruct() {

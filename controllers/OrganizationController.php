@@ -2,7 +2,7 @@
 
 class OrganizationController {
 	
-	private $prganization;
+	private $organization;
 	public function __construct() {
 		$this->organization = new Organization();
 	}
@@ -12,9 +12,6 @@ class OrganizationController {
 	}
 
 	public function get($id) {
-		$db = new DbConn();
-		$db->conn();
-		$db->close();
-		return $id;
+		return $this->organization->get_by_id($id);
 	}
 }

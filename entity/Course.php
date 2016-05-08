@@ -1,9 +1,9 @@
 <?php
 
-class Organization {
+class Course {
 
-	private $GET_ALL = "select * from organization";
-	private $GET_ORG_BY_ID = 'select * from organization where organization_id = ${1}';
+	private $GET_COURSE_BY_ID = 'select * from course where course_id = ${1}';
+	private $GET_ALL = "select * from course";
 	private $db;
 	public function __construct () {
 		$this->db = new DbConn();
@@ -14,8 +14,9 @@ class Organization {
 		return $this->db->select($this->GET_ALL);
 	}
 
+
 	public function get_by_id ($id) {
-		return $this->db->select(preg_replace("/(\d+)/", $this->GET_ORG_BY_ID, $id));
+		return $this->db->select(preg_replace("/(\d+)/", $this->GET_COURSE_BY_ID, $id));
 	}
 
 	function __destruct() {

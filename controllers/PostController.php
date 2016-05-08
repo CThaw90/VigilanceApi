@@ -12,9 +12,6 @@ class PostController {
 	}
 
 	public function get($id) {
-		$db = new DbConn();
-		$db->conn();
-		$db->close();
-		return $id;
+		return $this->post->get_by_id($id);
 	}
 }
