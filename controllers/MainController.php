@@ -30,8 +30,8 @@ class MainController {
 
 	public function execute() {
 
+		$return = '{"status": 404, "error": "Resource not found"}';
 		$controller = null;
-		$return = null;
 		if (!isset($_SERVER['REDIRECT_URL'])) {
 			return '{"error": "No resource requested"}';
 		}
@@ -99,14 +99,16 @@ class MainController {
 			$controller = new CommentController();
 		}
 		else {
-			return '{"error": "Resource not found"}';
+			return $return;
 		}
 
 		switch ($_SERVER['REQUEST_METHOD']) {
 			
 			case 'GET':
 				preg_match("/\d{1,}/", $_SERVER['REQUEST_URI'], $matched);
-				$return = $controller->get($matched[0]);
+
+				if (count($matched))
+					$return = $controller->get($matched[0]);
 				break;
 
 			case 'POST':
