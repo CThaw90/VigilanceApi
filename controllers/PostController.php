@@ -14,4 +14,12 @@ class PostController {
 	public function get($id) {
 		return $this->post->get_by_id($id);
 	}
+
+	public function post($data) {
+		return $this->post->create($data);
+	}
+
+	public function delete ($id) {
+		return $this->post->delete($id);
+	}
 }

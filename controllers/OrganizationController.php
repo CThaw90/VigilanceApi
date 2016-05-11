@@ -14,4 +14,12 @@ class OrganizationController {
 	public function get($id) {
 		return $this->organization->get_by_id($id);
 	}
+
+	public function post($data) {
+		return $this->organization->create($data);
+	}
+
+	public function delete($id) {
+		return $this->organization->delete($id);
+	}
 }

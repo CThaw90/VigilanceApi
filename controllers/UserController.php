@@ -14,4 +14,12 @@ class UserController {
 	public function get ($id) {
 		return $this->user->get_by_id($id);
 	}
+
+	public function post ($data) {
+		return $this->user->create($data);
+	}
+
+	public function delete ($id) {
+		return $this->user->delete($id);
+	}
 }

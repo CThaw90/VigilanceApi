@@ -14,4 +14,12 @@ class SchoolController {
 	public function get($id) {
 		return $this->school->get_by_id($id);
 	}
+
+	public function post($data) {
+		return $this->school->create($data);
+	}
+
+	public function delete($id) {
+		return $this->school->delete($id);
+	}
 }

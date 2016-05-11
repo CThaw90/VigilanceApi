@@ -14,4 +14,12 @@ class CourseController {
 	public function get($id) {
 		return $this->course->get_by_id($id);
 	}
+
+	public function post($data) {
+		return $this->course->create($data);
+	}
+
+	public function delete ($id) {
+		return $this->course->delete($id);
+	}
 }
