@@ -47,7 +47,7 @@ class DbConn {
 			$query_columns = $query_columns . $comma . $key . "=" . "'" . mysqli_real_escape_string($this->connection, $value) . "'";
 			$comma = ", ";
 		}
-		$query = $query_table . $query_columns . " " . $condition;
+		$query = $query_table . $query_columns . " where " . $condition;
 		return mysqli_query($this->connection, $query);
 	}
 

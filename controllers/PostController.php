@@ -20,7 +20,7 @@ class PostController {
 	}
 
 	public function put($data) {
-		return '{"status": "In Progress"}';
+		return $this->post->update($data);
 	}
 
 	public function delete ($id) {

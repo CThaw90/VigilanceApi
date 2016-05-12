@@ -20,7 +20,7 @@ class SchoolController {
 	}
 
 	public function put($data) {
-		return '{"status": "In Progress"}';
+		return $this->school->update($data);
 	}
 
 	public function delete($id) {

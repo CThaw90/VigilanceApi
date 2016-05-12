@@ -20,7 +20,7 @@ class CourseController {
 	}
 
 	public function put($data) {
-		return '{"status": "In Progress"}';
+		return $this->course->update($data);
 	}
 
 	public function delete ($id) {

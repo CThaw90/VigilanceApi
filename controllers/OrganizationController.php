@@ -20,7 +20,7 @@ class OrganizationController {
 	}
 
 	public function put($data) {
-		return '{"status": "In Progress"}';
+		return $this->organization->update($data);
 	}
 
 	public function delete($id) {
