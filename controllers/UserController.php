@@ -19,6 +19,10 @@ class UserController {
 		return $this->user->create($data);
 	}
 
+	public function put ($data) {
+		return $this->user->update($data);
+	}
+
 	public function delete ($id) {
 		return $this->user->delete($id);
 	}

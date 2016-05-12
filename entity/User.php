@@ -3,11 +3,14 @@
 class User {
 	
 	private $GET_CRED_BY_ID = 'select * from credential where credential_id = ${1}';
+	private $UPDATE_CRED_BY_ID = 'where credential_id = ${1}';
+
 	private $GET_ALL = "select * from credential";
 	private $DELETE_USER = 'credential_id = ${1}';
-	private $db;
 
+	private $attrs = array ("password", "age", "email", "img_src", "user_type", "username", "name");
 	private $error;
+	private $db;
 
 	public function __construct () {
 		$this->db = new DbConn();
@@ -24,11 +27,11 @@ class User {
 
 	public function create ($data) {
 		$status = '';
-		$data = json_decode($data);
+		$data = json_decode($data, true);
 		if ($data === null) {
 			$status = '{"status": 500, "messsage": "Invalid data body object"}';
 		} else if ($this->validate_object($data)) {
-			$status = $this->db->insert("credential", $data) ? 
+			$status = $this->db->insert("credential", $this->transform($data)) ? 
 				'{"status": 200, "message": "New user created"}' :
 				'{"status": 500, "message": "Could not complete user insertion query"}';
 		}
@@ -39,33 +42,55 @@ class User {
 		return $status;
 	}
 
+	public function update ($data) {
+		$status = "";
+		$data = json_decode($data, true);
+		if ($data === null) {
+			$status = '{"status": 500, "message": "Invalid data body object"}';
+		}
+		else if (isset($data['credential_id'])) {
+			$status = $this->update_by_id($data);
+		}
+		else {
+			$status = '{"status": 500, "message": "User Update failed. No update type declaration."}';
+		}
+
+		return $status;
+	}
+
+	private function update_by_id ($data) {
+		return $this->db->update("credential", $this->transform($data), 
+			preg_replace("/(\d+)/", $this->UPDATE_CRED_BY_ID, $data['credential_id'])) ? 
+				'{"status": 200, "message": "User updated successfully"}' :
+				'{"status": 500, "message": "User update failed"}';
+	}
+
 	public function delete ($id) {
 		return $this->db->delete("credential", preg_replace("/(\d+)/", $this->DELETE_USER, $id)) ? 
 			'{"status": 200, "message": "User deleted"}' : '{"status": 500, "message": "User could not be deleted"}';
 	}
 
 	private function validate_object($data) {
-		$valid = false;
-		if (!isset($data->email)) {
-			$this->error = '{"status": 500, "message": "Email field is missing"}';
-		}
-		else if (!isset($data->user_type)) {
-			$this->error = '{"status": 500, "message": "User Type field is missing"}';
-		}
-		else if (!isset($data->age)) {
-			$this->error = '{"status": 500, "message": "Age field is missing"}';
-		}
-		else if (!isset($data->username)) {
-			$this->error = '{"status": 500, "message": "Username field is missing"}';
-		}
-		else if (!isset($data->password)) {
-			$this->error = '{"status": 500, "message": "Password field is missing"}';
-		}
-		else {
-			$valid = true;
+		$valid = true;
+		for ($key = 0; $key < count($this->attrs) && $valid; $key++) {
+			if (!isset($data[$this->attrs[$key]])) {
+				$this->error = '{"status": 500, "message": "' . $this->attrs[$key] . ' field is missing"}';
+				$valid = false;
+			}
 		}
 
 		return $valid;
+	}
+
+	private function transform ($data) {
+		$transformed_object = array();
+		for ($key = 0; $key < count($this->attrs); $key++) {
+			if (isset($data[$this->attrs[$key]])) {
+				$transformed_object[$this->attrs[$key]] = $data[$this->attrs[$key]];
+			}
+		}
+
+		return $transformed_object;
 	}
 
 	function __destruct () {

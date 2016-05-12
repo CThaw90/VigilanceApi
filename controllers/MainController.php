@@ -116,7 +116,7 @@ class MainController {
 				break;
 
 			case 'PUT':
-				$return = "{'status': 'You hit the APIs put method logic branch'}";
+				$return = $controller->put(file_get_contents('php://input'));
 				break;
 
 			case 'DELETE':

@@ -39,6 +39,18 @@ class DbConn {
 		return mysqli_query($this->connection, $query);
 	}
 
+	public function update ($table, $object, $condition) {
+		$query_table = "update " . $table . " set";
+		$query_columns = "";
+		$comma = " ";
+		foreach ($object as $key => $value) {
+			$query_columns = $query_columns . $comma . $key . "=" . "'" . mysqli_real_escape_string($this->connection, $value) . "'";
+			$comma = ", ";
+		}
+		$query = $query_table . $query_columns . " " . $condition;
+		return mysqli_query($this->connection, $query);
+	}
+
 	public function delete ($table, $condition) {
 		return mysqli_query($this->connection, "delete from " . $table . " where " . $condition);
 	}

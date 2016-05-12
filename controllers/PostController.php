@@ -19,6 +19,10 @@ class PostController {
 		return $this->post->create($data);
 	}
 
+	public function put($data) {
+		return '{"status": "In Progress"}';
+	}
+
 	public function delete ($id) {
 		return $this->post->delete($id);
 	}

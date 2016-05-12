@@ -5,7 +5,11 @@ class Comment {
 	private $GET_COMMENT_BY_ID = 'select * from comment where comment_id = ${1}';
 	private $GET_ALL = "select * from comment";
 	private $DELETE_COMMENT = 'comment_id = ${1}';
+
+	private attrs = array("text", "credential_id", "post_id");
+	private $error;
 	private $db;
+
 	public function __construct () {
 		$this->db = new DbConn();
 		$this->db->conn();
@@ -21,7 +25,7 @@ class Comment {
 
 	public function create ($data) { // post_id, credential_id, text
 		$status = '';
-		$data = json_decode($data);
+		$data = json_decode($data, true);
 		if ($data === null) {
 			$status = '{"status": 500, "messsage": "Invalid data body object"}';
 		} else if ($this->validate_object($data)) {

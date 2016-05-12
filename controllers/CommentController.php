@@ -19,6 +19,10 @@ class CommentController {
 		return $this->comment->create($data);
 	}
 
+	public function put ($data) {
+		return $this->comment->update($data);
+	}
+
 	public function delete ($id) {
 		return $this->comment->delete($id);
 	}

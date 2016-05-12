@@ -19,6 +19,10 @@ class SchoolController {
 		return $this->school->create($data);
 	}
 
+	public function put($data) {
+		return '{"status": "In Progress"}';
+	}
+
 	public function delete($id) {
 		return $this->school->delete($id);
 	}
