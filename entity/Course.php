@@ -1,19 +1,20 @@
 <?php
 
-class Course {
+class Course extends Entity {
 
 	private $GET_COURSE_BY_ID = 'select * from course where course_id = ${1}';
 	private $GET_ALL = "select * from course";
 	private $DELETE_COURSE = 'course_id = ${1}';
 	private $UPDATE_COURSE_BY_ID = 'course_id = ${1}';
 
-	private $attrs = array(
+	protected $attrs = array(
 		"school_id" => false, "credential_id" => false, "name" => true, 
 		"start_time" => true, "end_time" => true
 	);
 	
-	private $error;
-	private $db;
+	protected $table = "course";
+	protected $error;
+	protected $db;
 
 	public function __construct () {
 		$this->db = new DbConn();
@@ -30,20 +31,7 @@ class Course {
 	}
 
 	public function create ($data) {
-		$status = '';
-		$data = json_decode($data, true);
-		if ($data === null) {
-			$status = '{"status": 500, "messsage": "Invalid data body object"}';
-		} else if ($this->validate_object($data)) {
-			$status = $this->db->insert("course", $this->transform($data, true)) ? 
-				'{"status": 200, "message": "New course created"}' :
-				'{"status": 500, "message": "Could not complete course insertion query"}';
-		}
-		else {
-			return $this->error;
-		}
-
-		return $status;
+		return parent::create($data);
 	}
 
 	public function update ($data) {
@@ -68,33 +56,10 @@ class Course {
 	}
 
 	private function update_by_id ($data) {
-		return $this->db->update("course", $this->transform($data, false), 
+		return $this->db->update("course", $this->transform($data, $this->attrs, false), 
 			preg_replace("/(\d+)/", $this->UPDATE_COURSE_BY_ID, $data['course_id'])) ? 
 				'{"status": 200, "message": "Course updated successfully"}' :
 				'{"status": 500, "message": "Course update failed"}';
-	}
-
-	private function validate_object($data) {
-		$valid = true;
-		foreach ($this->attrs as $key => $value) {
-			if (!isset($data[$key])) {
-				$this->error = '{"status": 500, "message": "' . $key . ' field is missing"}';
-				$valid = false;
-			}
-		}
-
-		return $valid;
-	}
-
-	private function transform ($data, $new) {
-		$transformed_object = array();
-		foreach ($this->attrs as $key => $update) {
-			if (isset($data[$key]) && ($new || $update)) {
-				$transformed_object[$key] = $data[$key];
-			}
-		}
-
-		return $transformed_object;
 	}
 
 	function __destruct() {

@@ -11,6 +11,7 @@ include_once 'controllers/MainController.php';
 
 
 #PHP Entities
+include_once 'entity/Entity.php';
 include_once 'entity/Organization.php';
 include_once 'entity/Comment.php';
 include_once 'entity/Course.php';

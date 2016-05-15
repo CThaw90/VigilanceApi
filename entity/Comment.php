@@ -1,15 +1,16 @@
 <?php
 
-class Comment {
+class Comment extends Entity {
 	
 	private $GET_COMMENT_BY_ID = 'select * from comment where comment_id = ${1}';
 	private $GET_ALL = "select * from comment";
 	private $UPDATE_COMMENT_BY_ID = 'comment_id = ${1}';
 	private $DELETE_COMMENT = 'comment_id = ${1}';
 
-	private $attrs = array("text" => true, "comment_id" => false, "post_id" => false);
-	private $error;
-	private $db;
+	protected $attrs = array("text" => true, "credential_id" => false, "post_id" => false);
+	protected $table = "comment";
+	protected $error;
+	protected $db;
 
 	public function __construct () {
 		$this->db = new DbConn();
@@ -25,20 +26,7 @@ class Comment {
 	}
 
 	public function create ($data) { // post_id, credential_id, text
-		$status = '';
-		$data = json_decode($data, true);
-		if ($data === null) {
-			$status = '{"status": 500, "messsage": "Invalid data body object"}';
-		} else if ($this->validate_object($data)) {
-			$status = $this->db->insert("comment", $this->transform($data, true)) ? 
-				'{"status": 200, "message": "New comment created"}' :
-				'{"status": 500, "message": "Could not complete user insertion query"}';
-		}
-		else {
-			return $this->error;
-		}
-
-		return $status;
+		return parent::create($data);
 	}
 
 	public function update ($data) {
@@ -63,33 +51,10 @@ class Comment {
 	}
 
 	private function update_by_id ($data) {
-		return $this->db->update("comment", $this->transform($data, false),
+		return $this->db->update("comment", $this->transform($data, $this->attrs, false),
 			preg_replace("/(\d+)/", $this->UPDATE_COMMENT_BY_ID, $data['comment_id'])) ?
 				'{"status": 200, "message": "Comment updated successfully"}' :
 				'{"status": 500, "message": "Comment update failed"}';		
-	}
-
-	private function validate_object($data) {
-		$valid = true;
-		foreach ($this->attrs as $key => $value) {
-			if (!isset($data[$key])) {
-				$this->error = '{"status": 500, "message": "' . $key . ' field is missing"}';
-				$valid = false;
-			}
-		}
-
-		return $valid;
-	}
-
-	private function transform ($data, $new) {
-		$transformed_object = array();
-		foreach ($this->attrs as $key => $update) {
-			if (isset($data[$key]) && ($new || $update)) {
-				$transformed_object[$key] = $data[$key];
-			}
-		}
-
-		return $transformed_object;
 	}
 
 	function __destruct() {
