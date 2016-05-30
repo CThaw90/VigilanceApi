@@ -28,6 +28,10 @@ class MainController {
 	private $COURSES_RESOURCE_REGEX = '/^\/vigilance\/api\/course\/\d{1,}.*/';
 	private $COURSE_OBJECT_REGEX = '/^\/vigilance\/api\/course$/';
 
+    private $ALL_TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfives$/';
+    private $TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfive\/\d{1,}.*/';
+    private $TOPFIVE_OBJECT_REGEX = '/^\/vigilance\/api\/topfive$/';
+
 	public function execute() {
 
 		$return = '{"status": 404, "error": "Resource not found"}';
@@ -98,6 +102,16 @@ class MainController {
 		else if (preg_match($this->COMMENT_OBJECT_REGEX, $_SERVER['REQUEST_URI'])) {
 			$controller = new CommentController();
 		}
+        else if (preg_match($this->ALL_TOPFIVE_RESOURCE_REGEX, $_SERVER['REQUEST_URI'])) {
+            $controller = new TopFiveController();
+            return $controller->all();
+        }
+        else if (preg_match($this->TOPFIVE_RESOURCE_REGEX, $_SERVER['REQUEST_URI'])) {
+            $controller = new TopFiveController();
+        }
+        else if (preg_match($this->TOPFIVE_OBJECT_REGEX, $_SERVER['REQUEST_URI'])) {
+            $controller = new TopFiveController();
+        }
 		else {
 			return $return;
 		}

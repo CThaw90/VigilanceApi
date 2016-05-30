@@ -36,7 +36,6 @@ class DbConn {
 		}
 
 		$query = $query_table . $query_columns . ") VALUES " . $query_values . ")";
-		echo $query;
 		return mysqli_query($this->connection, $query);
 	}
 

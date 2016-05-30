@@ -2,6 +2,7 @@
 
 # PHP Controllers
 include_once 'controllers/OrganizationController.php';
+include_once 'controllers/TopFiveController.php';
 include_once 'controllers/CommentController.php';
 include_once 'controllers/SchoolController.php';
 include_once 'controllers/CourseController.php';
@@ -13,6 +14,7 @@ include_once 'controllers/MainController.php';
 #PHP Entities
 include_once 'entity/Entity.php';
 include_once 'entity/Organization.php';
+include_once 'entity/TopFive.php';
 include_once 'entity/Comment.php';
 include_once 'entity/Course.php';
 include_once 'entity/School.php';

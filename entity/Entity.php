@@ -6,7 +6,7 @@ class Entity {
 	private $error;
 
 	protected function create ($data) {
-		$status = "";
+		$status = null;
 		$data = json_decode($data, true);
 		if ($data === null) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
@@ -48,9 +48,5 @@ class Entity {
 
 	protected function error_log () {
 		return $this->error;
-	}
-
-	private function __destruct() {
-		$this->db->close();
 	}
 }
