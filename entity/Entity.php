@@ -2,13 +2,12 @@
 
 class Entity {
 
-	private $child;
 	private $error;
-
 	protected function create ($data) {
 		$status = null;
-		$data = json_decode($data, true);
-		if ($data === null) {
+        $data = json_decode($data, true);
+        $data = array_merge($data !== null ? $data : array(), $_POST);
+		if (!count($data) === 0) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if ($this->validate_object($data, $this->attrs)) {

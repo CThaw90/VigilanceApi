@@ -30,9 +30,10 @@ class Post extends Entity {
 	}
 
 	public function update ($data) {
-		$status = "";
+		$status = null;
+
 		$data = json_decode($data, true);
-		if ($data === null) {
+        if ($data === null) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['post_id'])) {

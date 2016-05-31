@@ -36,7 +36,7 @@ class User extends Entity {
 	}
 
 	public function update ($data) {
-		$status = "";
+		$status = null;
 		$data = json_decode($data, true);
 		if ($data === null) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
