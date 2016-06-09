@@ -3,6 +3,8 @@
 class MainController {
 	
 	private $BASE_API_URL_ONLY_REGEX = '/^\/vigilance\/api\/$/';
+	private $BASE_API_LOGIN_REGEX = '/^\/vigilance\/api\/login$/';
+	private $BASE_API_LOGOUT_REGEX = '/^\/vigilance\/api\/logout$/';
 
 	private $ALL_USERS_RESOURCE_REGEX = '/^\/vigilance\/api\/users$/';
 	private $USER_RESOURCE_REGEX = '/^\/vigilance\/api\/user\/\d{1,}.*/';
@@ -32,15 +34,24 @@ class MainController {
     private $TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfive\/\d{1,}.*/';
     private $TOPFIVE_OBJECT_REGEX = '/^\/vigilance\/api\/topfive$/';
 
+    private $authenticate;
+
 	public function execute() {
 
 		$return = '{"status": 404, "error": "Resource not found"}';
+		$authenticate = new Authentication();
 		$controller = null;
 		if (!isset($_SERVER['REDIRECT_URL'])) {
 			return '{"error": "No resource requested"}';
 		}
 		else if (preg_match($this->BASE_API_URL_ONLY_REGEX, $_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
 			return '{"success": 200}';
+		}
+		else if (preg_match($this->BASE_API_LOGIN_REGEX, $_SERVER['REQUEST_URI'])) {
+			$controller = new LoginController();
+		}
+		else if (preg_match($this->BASE_API_LOGOUT_REGEX, $_SERVER['REQUEST_URI']) && $authenticate->isAuthorized()) {
+			$controller = new LogoutController();
 		}
 		else if (preg_match($this->ALL_USERS_RESOURCE_REGEX, $_SERVER['REQUEST_URI'])) {
 			$controller = new UserController();
@@ -111,6 +122,9 @@ class MainController {
         }
         else if (preg_match($this->TOPFIVE_OBJECT_REGEX, $_SERVER['REQUEST_URI'])) {
             $controller = new TopFiveController();
+        }
+        else if (!$authenticate->isAuthorized()) {
+        	return '{"error": "Permission Denied. You do not have access to this resource"}';
         }
 		else {
 			return $return;

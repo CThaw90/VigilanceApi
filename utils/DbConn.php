@@ -7,8 +7,12 @@ class DbConn {
 	private $password = 'musicismylife90';
 	private $database = 'whatthn2_vigilance';
 
+	private $authenticate;
 	private $connection;
-	public function __construct () {}	
+
+	public function __construct () {
+		$authenticate = new Authentication();
+	}	
 
 	public function conn () {
 		$this->connection = mysqli_connect($this->hostname, $this->username, $this->password, $this->database);
@@ -53,6 +57,10 @@ class DbConn {
 
 	public function delete ($table, $condition) {
 		return mysqli_query($this->connection, "delete from " . $table . " where " . $condition);
+	}
+
+	public function escape ($string) {
+		return mysqli_real_escape_string($this->connection, $string);
 	}
 
 	public function close () {
