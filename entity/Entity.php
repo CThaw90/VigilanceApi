@@ -45,6 +45,17 @@ class Entity {
 		return $transformed_object;
 	}
 
+	protected function parse_request_body ($request) {
+		$data = json_decode($request, true);
+		$data = array_merge($data !== null ? $data : array(), $_POST);
+		
+		return count($data) ? $data : array_merge($data, $this->parse_form_encoded_body($request));
+	}
+
+	private function parse_form_encoded_body ($formData) {
+		return array();
+	}
+
 	protected function error_log () {
 		return $this->error;
 	}

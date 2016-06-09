@@ -15,7 +15,7 @@ include_once 'controllers/PostController.php';
 include_once 'controllers/UserController.php';
 include_once 'controllers/MainController.php';
 
-#PHP Entities
+# PHP Entities
 include_once 'entity/Entity.php';
 include_once 'entity/Organization.php';
 include_once 'entity/TopFive.php';
@@ -27,5 +27,5 @@ include_once 'entity/User.php';
 include_once 'entity/Logout.php';
 include_once 'entity/Login.php';
 
-#PHP Database Connectors
+# PHP Database Connectors
 include_once 'utils/DbConn.php';

@@ -13,6 +13,10 @@ class Authentication {
 
 	}
 
+	public function login () {
+		$_SESSION['login'] = 1;
+	}
+
 	public function get_token () {
 		return isset ($_SESSION['token']) ? $_SESSION['token'] : null;
 	}
@@ -22,9 +26,12 @@ class Authentication {
 	}
 
 	public function isAuthorized () {
+		$login = isset($_SESSION['login']) ? $_SESSION['login'] : 0;
 		$headers = getallheaders();
-		return isset($_SESSION['token']) && isset($headers['token']) 
-			&& $headers['token'] === $_SESSION['token'];
+		$_SESSION['login'] = 0;
+
+		return (isset($_SESSION['token']) && isset($headers['token']) 
+			&& $headers['token'] === $_SESSION['token']) || $login;
 	}
 
 	public function destroy_token () {

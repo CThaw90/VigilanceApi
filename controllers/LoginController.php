@@ -22,6 +22,4 @@ class LoginController {
 	public function delete () {
 		return '{"error":"DELETE method for login is not allowed. Use POST method"}';
 	}
-
-
 }

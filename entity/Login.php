@@ -14,16 +14,18 @@ class Login extends Entity {
 	}
 
 	public function authenticate ($data) {
+		$authenticate = new Authentication();
+		$authenticate->login();
 		$auth = null;
-		$data = json_decode($data, true);
+		$data = $this->parse_request_body($data);
 		if (isset($data['username']) && isset($data['password'])) {
 			$auth = json_decode($this->db->select($this->LOGIN_CREDENTIAL . 
 				" username = '" . $this->db->escape($data['username']) . "' and " . 
-				" password in ('" . sha1($data['password']) . "', '" . $this->db->escape($data['password']) . "')"));
+				" password in ('" . sha1($data['password']) . "', '" . $this->db->escape($data['password']) . "')"), true);
 		}
 
+		//print_r ($auth);
 		if (count($auth)) {
-			$authenticate = new Authentication();
 			$authenticate->generate_token($auth[0]);
 			return '{"token":"' . $authenticate->get_token() . '"}';
 		}

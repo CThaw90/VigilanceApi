@@ -7,11 +7,12 @@ class DbConn {
 	private $password = 'musicismylife90';
 	private $database = 'whatthn2_vigilance';
 
+	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
 	private $authenticate;
 	private $connection;
 
 	public function __construct () {
-		$authenticate = new Authentication();
+		$this->authenticate = new Authentication();
 	}	
 
 	public function conn () {
@@ -25,7 +26,7 @@ class DbConn {
 			array_push($result, $row);
 		}
 
-		return json_encode($result);
+		return $this->authenticate->isAuthorized() ? json_encode($result) : $this->auth_error;
 	}
 
 	public function insert ($table, $object) {
