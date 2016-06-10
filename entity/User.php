@@ -14,7 +14,7 @@ class User extends Entity {
 		"email" => array("canUpdate" => true, "needAuth" => false),
 		"img_src" => array("canUpdate" => true, "needAuth" => false),
 		"name" => array("canUpdate" => true, "needAuth" => false),
-		"credential_id" => array("canUpdate" => false, "authorize" => true)
+		"credential_id" => array("canUpdate" => false, "authorize" => true, "authToken" => true)
 	);
 
 	protected $table = "credential";

@@ -14,6 +14,7 @@ class Organization extends Entity {
 		"city" => array("canUpdate" => true, "needAuth" => false),
 		"email" => array("canUpdate" => true, "needAuth" => false),
 		"img_src" => array("canUpdate" => true, "needAuth" => false),
+		"organization_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true)
 	);
 	protected $table = "organization";
 	protected $error;

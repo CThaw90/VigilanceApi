@@ -5,6 +5,7 @@ session_start();
 class Authentication {
 
 	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
+	private $db;
 
 	public function generate_token ($user) {
 		if (!isset($_SESSION['token'])) {
@@ -34,6 +35,32 @@ class Authentication {
 
 		return (isset($_SESSION['token']) && isset($headers['token']) 
 			&& $headers['token'] === $_SESSION['token']) || $ignore;
+	}
+
+	public function authorize_action ($table, $data, $attrs) {
+		
+		$this->db = new DbConn();
+		$this->db->conn();
+		$query = "select * from " . $table . " where";
+		$and = " ";
+		foreach ($attrs as $key => $value) {
+			if (isset($value['authToken']) && $value['authToken']) {
+				$query = $query . $and . $key . " = '" . $this->db->escape($data[$key]) . "'";
+				$and = " and ";
+			}
+		}
+
+		$result = json_decode($this->db->select($query), true);
+		$authorized = count($result) > 0;
+		foreach ($attrs as $key => $value) {
+		 	if ($authorized && isset($value['authorize'])) {
+		 		$user = $this->get_user();
+		 		$authorized = ($result[0][$key] == $user[$key]);
+		 	}
+		}
+
+		$this->db->close();
+		return $authorized;
 	}
 
 	public function destroy_token () {

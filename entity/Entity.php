@@ -60,15 +60,8 @@ class Entity {
 
 	protected function isAuthorized ($data, $attrs) {
 		$auth = new Authentication();
-		$authorized = true;
-		foreach ($attrs as $key => $value) {
-			if ($authorized && isset($value['authorize'])) {
-				$user = $auth->get_user();
-				$authorized = ($data[$key] == $user[$key]);
-			}
-		}
 
-		return $authorized;
+		return $auth->authorize_action($this->table, $data, $attrs);
 	}
 
 	protected function error_log () {

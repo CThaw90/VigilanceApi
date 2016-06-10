@@ -10,7 +10,8 @@ class Comment extends Entity {
 	protected $attrs = array(
 		"text" => array("canUpdate" => true, "needAuth" => false),
 		"credential_id" => array("canUpdate" => false, "authorize" => true),
-		"post_id" => array("canUpdate" => false, "needAuth" => false)
+		"post_id" => array("canUpdate" => false, "needAuth" => false),
+		"comment_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true),
 	);
 
 	protected $table = "comment";
@@ -31,7 +32,7 @@ class Comment extends Entity {
 	}
 
 	public function create ($data) { // post_id, credential_id, text
-		return $this->isAuthoized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
+		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
 	}
 
 	public function update ($data) {

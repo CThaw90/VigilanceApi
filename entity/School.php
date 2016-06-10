@@ -13,7 +13,8 @@ class School extends Entity {
 		"email" => array("canUpdate" => true, "needAuth" => false), 
 		"city" => array("canUpdate" => true, "needAuth" => false), 
 		"img_src" => array("canUpdate" => true, "needAuth" => false),
-		"credential_id" => array("canUpdate" => true, "authorize" => true)
+		"credential_id" => array("canUpdate" => true, "authorize" => true),
+		"school_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true)
 	);
 
 	protected $table = "school";
@@ -34,7 +35,7 @@ class School extends Entity {
 	}
 
 	public function create ($data) { // name, display_name, email, city, img_src
-		return parent::create($data);
+		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
 	}
 
 	public function update ($data) {
@@ -44,7 +45,7 @@ class School extends Entity {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['school_id'])) {
-			$status = $this->update_by_id($data);
+			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
 		}
 		else {
 			$status = '{"status": 500, "message": "School Update failed. No update type declaration."}';
@@ -54,8 +55,12 @@ class School extends Entity {
 	}
 
 	public function delete ($id) {
-		return $this->db->delete("school", preg_replace("/(\d+)/", $this->DELETE_SCHOOL, $id)) ? 
-			'{"status": 200, "message": "School deleted"}' : '{"status": 500, "message": "School could not be deleted"}';
+		if ($this->isAuthorized(array("school_id"))) {
+			return $this->db->delete("school", preg_replace("/(\d+)/", $this->DELETE_SCHOOL, $id)) ? 
+				'{"status": 200, "message": "School deleted"}' : '{"status": 500, "message": "School could not be deleted"}';
+		}
+
+		return $this->auth_error;
 	}
 
 	private function update_by_id ($data) {

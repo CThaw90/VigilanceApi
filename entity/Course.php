@@ -10,7 +10,10 @@ class Course extends Entity {
 	protected $attrs = array(
 		"school_id" => array("canUpdate" => false, "needAuth" => false),
 		"credential_id" => array("canUpdate" => false, "authorize" => true),
-		"start_time" => array("canUpdate" => true, "needAuth" => false)
+		"start_time" => array("canUpdate" => true, "needAuth" => false),
+		"end_time" => array("canUpdate" => true, "needAuth" => false),
+		"name" => array("canUpdate" => true, "needAuth" => false),
+		"course_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true)
 	);
 	
 	protected $table = "course";
