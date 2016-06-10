@@ -124,7 +124,7 @@ class MainController {
             $controller = new TopFiveController();
         }
         else if (!$authenticate->isAuthorized()) {
-        	return '{"error": "Permission Denied. You do not have access to this resource"}';
+        	return '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
         }
 		else {
 			return $return;

@@ -2,7 +2,9 @@
 
 class Entity {
 
+	protected $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
 	private $error;
+
 	protected function create ($data) {
 		$status = null;
         $data = json_decode($data, true);
@@ -36,8 +38,8 @@ class Entity {
 
 	protected function transform ($data, $attrs, $new) {
 		$transformed_object = array();
-		foreach ($attrs as $key => $update) {
-			if (isset($data[$key]) && ($new || $update)) {
+		foreach ($attrs as $key => $value) {
+			if (isset($data[$key]) && ($new || $value['canUpdate'])) {
 				$transformed_object[$key] = $data[$key];
 			}
 		}
@@ -54,6 +56,19 @@ class Entity {
 
 	private function parse_form_encoded_body ($formData) {
 		return array();
+	}
+
+	protected function isAuthorized ($data, $attrs) {
+		$auth = new Authentication();
+		$authorized = true;
+		foreach ($attrs as $key => $value) {
+			if ($authorized && isset($value['authorize'])) {
+				$user = $auth->get_user();
+				$authorized = ($data[$key] == $user[$key]);
+			}
+		}
+
+		return $authorized;
 	}
 
 	protected function error_log () {

@@ -9,9 +9,12 @@ class User extends Entity {
 	private $DELETE_USER = 'credential_id = ${1}';
 
 	protected $attrs = array (
-		"password" => true, "age" => true, "email" => true, 
-		"img_src" => true, "user_type" => true, "username" => true, 
-		"name" => true
+		"password" => array("canUpdate" => true, "needAuth" => true),
+		"age" => array("canUpdate" => true, "needAuth" => false),
+		"email" => array("canUpdate" => true, "needAuth" => false),
+		"img_src" => array("canUpdate" => true, "needAuth" => false),
+		"name" => array("canUpdate" => true, "needAuth" => false),
+		"credential_id" => array("canUpdate" => false, "authorize" => true)
 	);
 
 	protected $table = "credential";
@@ -32,6 +35,9 @@ class User extends Entity {
 	}
 
 	public function create ($data) {
+		$authenticate = new Authentication();
+		$authenticate->ignore();
+
 		return parent::create($data);
 	}
 
@@ -42,7 +48,7 @@ class User extends Entity {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['credential_id'])) {
-			$status = $this->update_by_id($data);
+			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
 		}
 		else {
 			$status = '{"status": 500, "message": "User Update failed. No update type declaration."}';
@@ -52,8 +58,12 @@ class User extends Entity {
 	}
 
 	public function delete ($id) {
-		return $this->db->delete("credential", preg_replace("/(\d+)/", $this->DELETE_USER, $id)) ? 
-			'{"status": 200, "message": "User deleted"}' : '{"status": 500, "message": "User could not be deleted"}';
+		if ($this->isAuthorized(array('credential_id' => $id))) {
+			return $this->db->delete("credential", preg_replace("/(\d+)/", $this->DELETE_USER, $id)) ? 
+				'{"status": 200, "message": "User deleted"}' : '{"status": 500, "message": "User could not be deleted"}';
+		}
+
+		return $this->auth_error;
 	}
 
 	private function update_by_id ($data) {

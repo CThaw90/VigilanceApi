@@ -7,7 +7,14 @@ class Organization extends Entity {
 	private $UPDATE_BY_ID = 'organization_id = ${1}';
 	private $DELETE_ORG = 'organization_id = ${1}';
 
-	protected $attrs = array("name" => true, "display_name" => true, "city" => true, "email" => true, "img_src" => true);
+	protected $attrs = array(
+		"name" => array("canUpdate" => true, "needAuth" => false),
+		"credential_id" => array("canUpdate" => true, "authorize" => true),
+		"display_name" => array("canUpdate" => true, "needAuth" => false),
+		"city" => array("canUpdate" => true, "needAuth" => false),
+		"email" => array("canUpdate" => true, "needAuth" => false),
+		"img_src" => array("canUpdate" => true, "needAuth" => false),
+	);
 	protected $table = "organization";
 	protected $error;
 	protected $db;
@@ -26,7 +33,7 @@ class Organization extends Entity {
 	}
 
 	public function create ($data) {
-		return parent::create($data);
+		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
 	}
 
 	public function update ($data) {
@@ -36,7 +43,7 @@ class Organization extends Entity {
 			$status ='{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['organization_id'])) {
-			$status = $this->update_by_id($data);
+			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
 		}
 		else {
 			$status = '{"status": 500, "message": "Organization Update failed. No update type declaration."}';
@@ -46,8 +53,12 @@ class Organization extends Entity {
 	}
 
 	public function delete ($id) {
-		return $this->db->delete("organization", preg_replace("/(\d+)/", $this->DELETE_ORG, $id)) ? 
-			'{"status": 200, "message": "Organization deleted"}' : '{"status": 500, "message": "Organization could not be deleted"}';
+		if ($this->isAuthorized(array("organization_id" => $id))) {
+			return $this->db->delete("organization", preg_replace("/(\d+)/", $this->DELETE_ORG, $id)) ? 
+				'{"status": 200, "message": "Organization deleted"}' : '{"status": 500, "message": "Organization could not be deleted"}';
+		}
+
+		return $this->auth_error;
 	}
 
 	private function update_by_id ($data) {

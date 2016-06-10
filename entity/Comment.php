@@ -7,7 +7,12 @@ class Comment extends Entity {
 	private $UPDATE_COMMENT_BY_ID = 'comment_id = ${1}';
 	private $DELETE_COMMENT = 'comment_id = ${1}';
 
-	protected $attrs = array("text" => true, "credential_id" => false, "post_id" => false);
+	protected $attrs = array(
+		"text" => array("canUpdate" => true, "needAuth" => false),
+		"credential_id" => array("canUpdate" => false, "authorize" => true),
+		"post_id" => array("canUpdate" => false, "needAuth" => false)
+	);
+
 	protected $table = "comment";
 	protected $error;
 	protected $db;
@@ -26,7 +31,7 @@ class Comment extends Entity {
 	}
 
 	public function create ($data) { // post_id, credential_id, text
-		return parent::create($data);
+		return $this->isAuthoized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
 	}
 
 	public function update ($data) {
@@ -36,7 +41,7 @@ class Comment extends Entity {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['comment_id'])) {
-			$status = $this->update_by_id($data);
+			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
 		}
 		else {
 			$status = '{"status": 500, "message": "Comment Update failed. No update type declaration."}';
@@ -46,8 +51,12 @@ class Comment extends Entity {
 	}
 
 	public function delete($id) {
-		return $this->db->delete("comment", preg_replace("/(\d+)/", $this->DELETE_COMMENT, $id)) ? 
-			'{"status": 200, "message": "Comment deleted"}' : '{"status": 500, "message": "Comment could not be deleted"}';
+		if ($this->isAuthorized(array("comment_id" => $id))) {
+			return $this->db->delete("comment", preg_replace("/(\d+)/", $this->DELETE_COMMENT, $id)) ? 
+				'{"status": 200, "message": "Comment deleted"}' : '{"status": 500, "message": "Comment could not be deleted"}';
+		}
+
+		return $this->auth_error;
 	}
 
 	private function update_by_id ($data) {

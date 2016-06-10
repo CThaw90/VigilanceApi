@@ -7,7 +7,11 @@ class Post extends Entity {
 	private $UPDATE_BY_ID = 'post_id = ${1}';
 	private $DELETE_POST = 'post_id = ${1}';
 
-	protected $attrs = array("text" => true, "media" => true, "credential_id" => false);
+	protected $attrs = array(
+		"text" => array("canUpdate" => true, "needAuth" => false),
+		"media" => array("canUpdate" => true, "needAuth" => false),
+		"credential_id" => array("canUpdate" => true, "authorize" => true)
+	);
 	protected $table = "post";
 	protected $error;
 	protected $db;
@@ -26,7 +30,7 @@ class Post extends Entity {
 	}
 
 	public function create ($data) {
-		return parent::create($data);
+		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
 	}
 
 	public function update ($data) {
@@ -37,7 +41,7 @@ class Post extends Entity {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['post_id'])) {
-			$status = $this->update_by_id($data);
+			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
 		}
 		else {
 			$status = '{"status": 500, "message": "Post Update failed. No update type declaration."}';
@@ -47,8 +51,12 @@ class Post extends Entity {
 	}
 
 	public function delete ($id) {
-		return $this->db->delete("post", preg_replace("/(\d+)/", $this->DELETE_POST, $id)) ? 
-			'{"status": 200, "message": "Post deleted"}' : '{"status": 500, "message": "Post could not be deleted"}';
+		if ($this->isAuthorized(array("post_id"))) {
+			return $this->db->delete("post", preg_replace("/(\d+)/", $this->DELETE_POST, $id)) ? 
+				'{"status": 200, "message": "Post deleted"}' : '{"status": 500, "message": "Post could not be deleted"}';
+		}
+
+		return $this->auth_error;
 	}
 
 	private function update_by_id ($data) {

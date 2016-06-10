@@ -8,11 +8,12 @@ class School extends Entity {
 	private $DELETE_SCHOOL = 'school_id = ${1}';
 
 	protected $attrs = array(
-		"name" => true, 
-		"display_name" => true, 
-		"email" => true, 
-		"city" => true, 
-		"img_src" => true
+		"name" => array("canUpdate" => true, "needAuth" => false), 
+		"display_name" => array("canUpdate" => true, "needAuth" => false), 
+		"email" => array("canUpdate" => true, "needAuth" => false), 
+		"city" => array("canUpdate" => true, "needAuth" => false), 
+		"img_src" => array("canUpdate" => true, "needAuth" => false),
+		"credential_id" => array("canUpdate" => true, "authorize" => true)
 	);
 
 	protected $table = "school";

@@ -8,8 +8,14 @@ class TopFive extends Entity {
     private $DELETE_TOPFIVE = 'topfive_id = ${1}';
 
     protected $attrs = array(
-        "user_id" => false, "type" => false, "id" => false, "name" => true,
-        "email" => true, "city" => true, "img_src" => true, "unique_id" => false
+        "credential_id" => array("canUpdate" => false, "needAuth" => false),
+        "type" => array("canUpdate" => true, "needAuth" => false),
+        "id" => array("canUpdate" => false, "needAuth" => false),
+        "name" => array("canUpdate" => true, "needAuth" => false),
+        "email" => array("canUpdate" => true, "needAuth" => false),
+        "city" => array("canUpdate" => true, "needAuth" => false),
+        "img_src" => array("canUpdate" => true, "needAuth" => false),
+        "unique_id" => array("canUpdate" => false, "needAuth" => false)
     );
 
     protected $table = "topfive";
@@ -30,7 +36,7 @@ class TopFive extends Entity {
     }
 
     public function create ($data) {
-        return parent::create($data);
+        return $this->isAuthoized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
     }
 
     public function update ($data) {
@@ -40,7 +46,7 @@ class TopFive extends Entity {
             $status = '{"status": 500, "message": "Invalid data body object"}';
         }
         else if (isset($data['topfive_id'])) {
-            $status = $this->update_by_id($data);
+            $status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
         }
         else {
             $status = '{"status": 500, "message": "Topfive Update failed. No update type declaration."}';
@@ -50,8 +56,12 @@ class TopFive extends Entity {
     }
 
     public function delete ($id) {
-        return $this->db->delete("topfive", preg_replace("/(\d+)/", $this->DELETE_TOPFIVE, $id)) ?
-            '{"status": 200, "message": "Topfive deleted"}' : '{"status": 500, "message": "Topfive could not be deleted"}';
+        if ($this->isAuthorized(array("topfive_id"))) {
+            return $this->db->delete("topfive", preg_replace("/(\d+)/", $this->DELETE_TOPFIVE, $id)) ?
+                '{"status": 200, "message": "Topfive deleted"}' : '{"status": 500, "message": "Topfive could not be deleted"}';
+        }
+
+        return $this->auth_error;
     }
 
     private function update_by_id ($data) {
