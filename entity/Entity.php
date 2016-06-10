@@ -3,16 +3,16 @@
 class Entity {
 
 	protected $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
+	protected $no_auth = false;
 	private $error;
 
 	protected function create ($data) {
 		$status = null;
-        $data = json_decode($data, true);
-        $data = array_merge($data !== null ? $data : array(), $_POST);
+        $data = $this->parse_request_body($data);
 		if (!count($data) === 0) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
-		else if ($this->validate_object($data, $this->attrs)) {
+		else if ($this->validate_object($data, $this->attrs) && $this->isAuthorized($data, $this->attrs)) {
 			$status = $this->db->insert($this->table, $this->transform($data, $this->attrs, true)) ?
 				'{"status": 200, "message": "New ' . $this->table . ' created"}' :
 				'{"status": 500, "message": "Could not complete ' . $this->table .' insertion query"}';
@@ -27,9 +27,9 @@ class Entity {
 	protected function validate_object($data, $attrs) {
 		$valid = true;
 		foreach ($attrs as $key => $value) {
-			if (!isset($data[$key])) {
+			if ($valid && !isset($data[$key])) {
 				$this->error = '{"status": 500, "message": "' . $key . ' field is missing"}';
-				$valid = false;
+				$valid = (isset($value['postIgnore']) && $value['postIgnore']);
 			}
 		}
 
@@ -39,7 +39,7 @@ class Entity {
 	protected function transform ($data, $attrs, $new) {
 		$transformed_object = array();
 		foreach ($attrs as $key => $value) {
-			if (isset($data[$key]) && ($new || $value['canUpdate'])) {
+			if (isset($data[$key]) && ($new || $value['canUpdate']) && (!isset($value['postIgnore']) || !$value['postIgnore'])) {
 				$transformed_object[$key] = $data[$key];
 			}
 		}
@@ -51,7 +51,7 @@ class Entity {
 		$data = json_decode($request, true);
 		$data = array_merge($data !== null ? $data : array(), $_POST);
 		
-		return count($data) ? $data : array_merge($data, $this->parse_form_encoded_body($request));
+		return $data !== null ? $data : array_merge(array(), $this->parse_form_encoded_body($request));
 	}
 
 	private function parse_form_encoded_body ($formData) {
@@ -60,8 +60,9 @@ class Entity {
 
 	protected function isAuthorized ($data, $attrs) {
 		$auth = new Authentication();
-
-		return $auth->authorize_action($this->table, $data, $attrs);
+		$this->error = $this->no_auth || $auth->isAuthorized() && $auth->authorize_action($this->table, $data, $attrs) ? null : $this->auth_error;
+		$this->no_auth = false;
+		return $this->error === null;
 	}
 
 	protected function error_log () {

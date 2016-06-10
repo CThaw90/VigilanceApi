@@ -11,7 +11,7 @@ class Comment extends Entity {
 		"text" => array("canUpdate" => true, "needAuth" => false),
 		"credential_id" => array("canUpdate" => false, "authorize" => true),
 		"post_id" => array("canUpdate" => false, "needAuth" => false),
-		"comment_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true),
+		"comment_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true, "postIgnore" => true),
 	);
 
 	protected $table = "comment";
@@ -32,7 +32,7 @@ class Comment extends Entity {
 	}
 
 	public function create ($data) { // post_id, credential_id, text
-		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
+		return parent::create($data);
 	}
 
 	public function update ($data) {
@@ -52,7 +52,7 @@ class Comment extends Entity {
 	}
 
 	public function delete($id) {
-		if ($this->isAuthorized(array("comment_id" => $id))) {
+		if ($this->isAuthorized(array("comment_id" => $id), $this->attrs)) {
 			return $this->db->delete("comment", preg_replace("/(\d+)/", $this->DELETE_COMMENT, $id)) ? 
 				'{"status": 200, "message": "Comment deleted"}' : '{"status": 500, "message": "Comment could not be deleted"}';
 		}

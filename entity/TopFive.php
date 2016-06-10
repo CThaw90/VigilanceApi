@@ -8,7 +8,7 @@ class TopFive extends Entity {
     private $DELETE_TOPFIVE = 'topfive_id = ${1}';
 
     protected $attrs = array(
-        "credential_id" => array("canUpdate" => false, "needAuth" => false),
+        "credential_id" => array("canUpdate" => false, "authorize" => true),
         "type" => array("canUpdate" => true, "needAuth" => false),
         "id" => array("canUpdate" => false, "needAuth" => false),
         "name" => array("canUpdate" => true, "needAuth" => false),
@@ -16,7 +16,7 @@ class TopFive extends Entity {
         "city" => array("canUpdate" => true, "needAuth" => false),
         "img_src" => array("canUpdate" => true, "needAuth" => false),
         "unique_id" => array("canUpdate" => false, "needAuth" => false),
-        "topfive_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true)
+        "topfive_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true, "postIgnore" => true)
     );
 
     protected $table = "topfive";
@@ -37,7 +37,7 @@ class TopFive extends Entity {
     }
 
     public function create ($data) {
-        return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
+        return parent::create($data);
     }
 
     public function update ($data) {
@@ -57,7 +57,7 @@ class TopFive extends Entity {
     }
 
     public function delete ($id) {
-        if ($this->isAuthorized(array("topfive_id"))) {
+        if ($this->isAuthorized(array("topfive_id" => $id), $this->attrs)) {
             return $this->db->delete("topfive", preg_replace("/(\d+)/", $this->DELETE_TOPFIVE, $id)) ?
                 '{"status": 200, "message": "Topfive deleted"}' : '{"status": 500, "message": "Topfive could not be deleted"}';
         }

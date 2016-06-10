@@ -11,7 +11,7 @@ class Post extends Entity {
 		"text" => array("canUpdate" => true, "needAuth" => false),
 		"media" => array("canUpdate" => true, "needAuth" => false),
 		"credential_id" => array("canUpdate" => true, "authorize" => true),
-		"post_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true)
+		"post_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
 	protected $table = "post";
 	protected $error;
@@ -31,7 +31,7 @@ class Post extends Entity {
 	}
 
 	public function create ($data) {
-		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
+		return parent::create($data);
 	}
 
 	public function update ($data) {
@@ -52,7 +52,7 @@ class Post extends Entity {
 	}
 
 	public function delete ($id) {
-		if ($this->isAuthorized(array("post_id"))) {
+		if ($this->isAuthorized(array("post_id" => $id), $this->attrs)) {
 			return $this->db->delete("post", preg_replace("/(\d+)/", $this->DELETE_POST, $id)) ? 
 				'{"status": 200, "message": "Post deleted"}' : '{"status": 500, "message": "Post could not be deleted"}';
 		}

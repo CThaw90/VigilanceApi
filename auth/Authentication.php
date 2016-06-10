@@ -39,6 +39,39 @@ class Authentication {
 
 	public function authorize_action ($table, $data, $attrs) {
 		
+		$authorized = false;
+		switch ($_SERVER['REQUEST_METHOD']) {
+
+			case 'POST':
+				$authorized = $this->authorize_post($table, $data, $attrs);
+				break;
+
+			case 'PUT':
+				$authorized = $this->authorize_put($table, $data, $attrs);
+				break;
+
+			case 'DELETE':
+				$authorized = $this->authorize_delete($table, $data, $attrs);
+				break;
+		}
+
+		return $authorized;
+	}
+
+	private function authorize_post ($table, $data, $attrs) {
+		$authorized = true;
+		foreach ($attrs as $key => $value) {
+			if ($authorized && isset($value['authorize'])) {
+				$user = $this->get_user();
+				$authorized = ($data[$key] == $user[$key]);
+			}
+		}
+
+		return $authorized; 
+	}
+
+	private function authorize_put ($table, $data, $attrs) {
+
 		$this->db = new DbConn();
 		$this->db->conn();
 		$query = "select * from " . $table . " where";
@@ -61,6 +94,10 @@ class Authentication {
 
 		$this->db->close();
 		return $authorized;
+	}
+
+	private function authorize_delete ($table, $data, $attrs) {
+		return false;
 	}
 
 	public function destroy_token () {

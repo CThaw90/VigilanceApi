@@ -13,7 +13,7 @@ class Course extends Entity {
 		"start_time" => array("canUpdate" => true, "needAuth" => false),
 		"end_time" => array("canUpdate" => true, "needAuth" => false),
 		"name" => array("canUpdate" => true, "needAuth" => false),
-		"course_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true)
+		"course_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
 	
 	protected $table = "course";
@@ -35,7 +35,7 @@ class Course extends Entity {
 	}
 
 	public function create ($data) {
-		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
+		return parent::create($data);
 	}
 
 	public function update ($data) {

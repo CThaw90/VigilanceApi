@@ -14,7 +14,7 @@ class School extends Entity {
 		"city" => array("canUpdate" => true, "needAuth" => false), 
 		"img_src" => array("canUpdate" => true, "needAuth" => false),
 		"credential_id" => array("canUpdate" => true, "authorize" => true),
-		"school_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true)
+		"school_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
 
 	protected $table = "school";
@@ -35,7 +35,7 @@ class School extends Entity {
 	}
 
 	public function create ($data) { // name, display_name, email, city, img_src
-		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
+		return parent::create($data);
 	}
 
 	public function update ($data) {
@@ -55,7 +55,7 @@ class School extends Entity {
 	}
 
 	public function delete ($id) {
-		if ($this->isAuthorized(array("school_id"))) {
+		if ($this->isAuthorized(array("school_id" => $id), $this->attrs)) {
 			return $this->db->delete("school", preg_replace("/(\d+)/", $this->DELETE_SCHOOL, $id)) ? 
 				'{"status": 200, "message": "School deleted"}' : '{"status": 500, "message": "School could not be deleted"}';
 		}

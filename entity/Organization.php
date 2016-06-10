@@ -14,7 +14,7 @@ class Organization extends Entity {
 		"city" => array("canUpdate" => true, "needAuth" => false),
 		"email" => array("canUpdate" => true, "needAuth" => false),
 		"img_src" => array("canUpdate" => true, "needAuth" => false),
-		"organization_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true)
+		"organization_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
 	protected $table = "organization";
 	protected $error;
@@ -34,7 +34,7 @@ class Organization extends Entity {
 	}
 
 	public function create ($data) {
-		return $this->isAuthorized($data, $this->attrs) ? parent::create($data) : $this->auth_error;
+		return parent::create($data);
 	}
 
 	public function update ($data) {

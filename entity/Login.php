@@ -25,8 +25,6 @@ class Login extends Entity {
 				" password in ('" . sha1($data['password']) . "', '" . $this->db->escape($data['password']) . "')"), true);
 		}
 
-		print_r ($auth);
-		print gettype ($auth);
 		if (count($auth)) {
 			print_r ($auth[0]);	
 			$authenticate->generate_token($auth[0]);
