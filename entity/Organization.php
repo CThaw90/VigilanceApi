@@ -20,9 +20,14 @@ class Organization extends Entity {
 	protected $error;
 	protected $db;
 
+	private $debug;
+
 	public function __construct () {
+		$this->debug = new Debugger("Organization.php");
 		$this->db = new DbConn();
 		$this->db->conn();
+
+		parent::__construct();
 	}
 
 	public function get_all () {

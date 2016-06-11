@@ -18,9 +18,14 @@ class Comment extends Entity {
 	protected $error;
 	protected $db;
 
+	private $debug;
+
 	public function __construct () {
+		$this->debug = new Debugger("Comment.php");
 		$this->db = new DbConn();
 		$this->db->conn();
+
+		parent::__construct();
 	}
 
 	public function get_all () {
@@ -37,8 +42,8 @@ class Comment extends Entity {
 
 	public function update ($data) {
 		$status = "";
-		$data = json_decode($data, true);
-		if ($data === null) {
+		$data = $this->parse_request_body($data);
+		if ($data === null || !count($data)) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['comment_id'])) {

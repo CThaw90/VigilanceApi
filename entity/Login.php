@@ -13,6 +13,8 @@ class Login extends Entity {
 		$this->debug = new Debugger("Login.php");
 		$this->db = new DbConn();
 		$this->db->conn();
+
+		parent::__construct();
 	}
 
 	public function authenticate ($data) {

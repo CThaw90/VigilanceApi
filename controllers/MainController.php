@@ -137,8 +137,9 @@ class MainController {
 			return $return;
 		}
 
+		$this->debug->log("[INFO] Requesting resource url '" . $_SERVER['REQUEST_URI'] . "'", 3);
 		switch ($_SERVER['REQUEST_METHOD']) {
-			
+
 			case 'GET':
 				preg_match("/\d{1,}/", $_SERVER['REQUEST_URI'], $matched);
 

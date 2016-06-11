@@ -17,9 +17,14 @@ class Post extends Entity {
 	protected $error;
 	protected $db;
 
+	private $debug;
+
 	public function __construct () {
+		$this->debug = new Debugger("Post.php");
 		$this->db = new DbConn();
 		$this->db->conn();
+
+		parent::__construct();
 	}
 
 	public function get_all () {
@@ -37,8 +42,8 @@ class Post extends Entity {
 	public function update ($data) {
 		$status = null;
 
-		$data = json_decode($data, true);
-        if ($data === null) {
+		$data = $this->parse_request_body($data);
+        if ($data === null || !count($data)) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['post_id'])) {

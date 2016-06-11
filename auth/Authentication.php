@@ -49,13 +49,14 @@ class Authentication {
 	public function isAuthorized () {
 		$ignore = isset($_SESSION['ignore']) ? $_SESSION['ignore'] : 0;
 		if ($ignore) $this->debug->log("[INFO] Authentication ignore flag is set. By Passing Authentication Params", 2);
+		
 		$headers = getallheaders();
 		$_SESSION['ignore'] = 0;
 
 		$this->debug->log("[INFO] Retrieved Headers object " . json_encode($headers), 4);
 		$this->debug->log("[INFO] SESSION TOKEN " . (isset($_SESSION[self::$token_key]) ? "is" : "not") . " set", 5);
 		$this->debug->log("[INFO] Matching TOKEN " . (isset($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : "NULL") 
-			. "against " . (isset($headers[self::$token_key]) ? $headers[self::$token_key] : "NULL"), 5);
+			. " against " . (isset($headers[self::$token_key]) ? $headers[self::$token_key] : "NULL"), 5);
 
 		if ((isset($_SESSION[self::$token_key]) && isset($headers[self::$token_key]) && $headers[self::$token_key] === $_SESSION[self::$token_key]))
 			$this->debug->log("[INFO] Authentication Passed. Access is authorized", 3);

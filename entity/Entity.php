@@ -5,11 +5,17 @@ class Entity {
 	protected $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
 	protected $no_auth = false;
 	private $error;
+	private $debug;
+
+	public function __construct () {
+		$this->debug = new Debugger("Entity.php");
+	}
 
 	protected function create ($data) {
 		$status = null;
+		$this->debug->log("[Preparing to create object with table id " . $this->table, 3);
         $data = $this->parse_request_body($data);
-		if (!count($data) === 0) {
+		if ($data === null || !count($data) === 0) {
 			$status = '{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if ($this->validate_object($data, $this->attrs) && $this->isAuthorized($data, $this->attrs)) {
@@ -48,14 +54,41 @@ class Entity {
 	}
 
 	protected function parse_request_body ($request) {
+		$this->debug->log("[INFO] Parsing incoming data with request body ", 5);
+		$this->debug->log($request, 5);
 		$data = json_decode($request, true);
 		$data = array_merge($data !== null ? $data : array(), $_POST);
 		
-		return $data !== null ? $data : array_merge(array(), $this->parse_form_encoded_body($request));
+		return $data !== null && count($data) ? $data : array_merge(array(), $this->parse_form_encoded_body($request));
 	}
 
 	private function parse_form_encoded_body ($formData) {
-		return array();
+		$form_data_array = explode("\r\n", $formData);
+		$parsed_data = array();
+		$grab_next_value_in = 0;
+		$key = array();
+
+		foreach ($form_data_array as $index => $value) {
+
+			if (preg_match('/^------.*/', $value)) { /* Ignore this line */
+				$this->debug->log("[INFO] Ignoring Form Data blob " . $value, 5);
+			}
+			else if (preg_match('/^Content\-Disposition:.*/', $value)) {
+				preg_match ('/name="(.*)"$/', $value, $key);
+				$this->debug->log("[INFO] Parsed Form Data Key " . (count($key) ? trim($key[count($key)-1]) : "NULL") . " from Content-Disposition", 5);
+				$grab_next_value_in = count($key) ? 3 : 0;
+			}
+			
+			if ($grab_next_value_in) {
+				if ($grab_next_value_in === 1) {
+					$parsed_data[$key[count($key) - 1]] = $value;
+				}
+				
+				$grab_next_value_in -= 1;
+			}
+		}
+
+		return $parsed_data;
 	}
 
 	protected function isAuthorized ($data, $attrs) {
