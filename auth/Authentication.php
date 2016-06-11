@@ -8,24 +8,26 @@ class Authentication {
 	private $debug;
 	private $db;
 
+	private static $token_key = "Token";
+
 	public function __construct () {
 		$this->debug = new Debugger("Authentication.php");
 	}
 
 	public function generate_token ($user) {
-		if (!isset($_SESSION['token'])) {
+		if (!isset($_SESSION[self::$token_key])) {
 			$token = sha1(json_encode($user) . time());
-			$_SESSION['token'] = $token;
+			$_SESSION[self::$token_key] = $token;
 			$_SESSION[$token] = $user;
 		}
 	}
 
 	public function session_active () {
-		$this->debug->log(isset($_SESSION['token']) ? ("[INFO] Currently Active [TOKEN] " . $_SESSION['token']) : "[INFO] No TOKEN currently active", 5);
-		$this->debug->log(isset($_SESSION['token']) ? ("[INFO] Currently Active [USER] " . 
-			json_encode($_SESSION[$_SESSION['token']])) : "[INFO] No [USER] currently active", 5);
+		$this->debug->log(isset($_SESSION[self::$token_key]) ? ("[INFO] Currently Active [TOKEN] " . $_SESSION[self::$token_key]) : "[INFO] No TOKEN currently active", 5);
+		$this->debug->log(isset($_SESSION[self::$token_key]) ? ("[INFO] Currently Active [USER] " . 
+			json_encode($_SESSION[$_SESSION[self::$token_key]])) : "[INFO] No [USER] currently active", 5);
 
-		return isset($_SESSION['token']);
+		return isset($_SESSION[self::$token_key]);
 	}
 
 	public function ignore () {
@@ -34,13 +36,13 @@ class Authentication {
 	}
 
 	public function get_token () {
-		$this->debug->log("[INFO] Retrieving token for currently logged in user [TOKEN] " . json_encode($_SESSION['token']) , 5);
-		return isset ($_SESSION['token']) ? $_SESSION['token'] : null;
+		$this->debug->log("[INFO] Retrieving token for currently logged in user [TOKEN] " . json_encode($_SESSION[self::$token_key]) , 5);
+		return isset ($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : null;
 	}
 
 	public function get_user () {
-		$this->debug->log("[INFO] Retrieving user data for the currently active token [USER_DATA] " . json_encode($_SESSION[$_SESSION['token']]), 5);
-		$token = isset ($_SESSION['token']) ? $_SESSION['token'] : null;
+		$this->debug->log("[INFO] Retrieving user data for the currently active token [USER_DATA] " . json_encode($_SESSION[$_SESSION[self::$token_key]]), 5);
+		$token = isset ($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : null;
 		return $token !== null ? $_SESSION[$token] : $this->auth_error;
 	}
 
@@ -51,15 +53,15 @@ class Authentication {
 		$_SESSION['ignore'] = 0;
 
 		$this->debug->log("[INFO] Retrieved Headers object " . json_encode($headers), 4);
-		$this->debug->log("[INFO] SESSION TOKEN " . (isset($_SESSION['token']) ? "is" : "not") . " set", 5);
-		$this->debug->log("[INFO] Matching TOKEN " . (isset($_SESSION['token']) ? $_SESSION['token'] : "NULL") 
-			. "against " . (isset($headers['token']) ? $headers['token'] : "NULL"), 5);
+		$this->debug->log("[INFO] SESSION TOKEN " . (isset($_SESSION[self::$token_key]) ? "is" : "not") . " set", 5);
+		$this->debug->log("[INFO] Matching TOKEN " . (isset($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : "NULL") 
+			. "against " . (isset($headers[self::$token_key]) ? $headers[self::$token_key] : "NULL"), 5);
 
-		if ((isset($_SESSION['token']) && isset($headers['token']) && $headers['token'] === $_SESSION['token']))
+		if ((isset($_SESSION[self::$token_key]) && isset($headers[self::$token_key]) && $headers[self::$token_key] === $_SESSION[self::$token_key]))
 			$this->debug->log("[INFO] Authentication Passed. Access is authorized", 3);
 
-		return (isset($_SESSION['token']) && isset($headers['token']) 
-			&& $headers['token'] === $_SESSION['token']) || $ignore;
+		return (isset($_SESSION[self::$token_key]) && isset($headers[self::$token_key]) 
+			&& $headers[self::$token_key] === $_SESSION[self::$token_key]) || $ignore;
 	}
 
 	public function authorize_action ($table, $data, $attrs) {
