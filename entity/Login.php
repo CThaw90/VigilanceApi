@@ -21,7 +21,10 @@ class Login extends Entity {
 		$authenticate->ignore();
 		$auth = null;
 		$data = $this->parse_request_body($data);
-		if (isset($data['username']) && isset($data['password'])) {
+		if ($authenticate->session_active()) {
+			return '{"status": 500, "error": "A User is already logged in to this device. Logout the current user first"}';
+		}
+		else if (isset($data['username']) && isset($data['password'])) {
 			$auth = json_decode($this->db->select($this->LOGIN_CREDENTIAL . 
 				" username = '" . $this->db->escape($data['username']) . "' and " . 
 				" password in ('" . sha1($data['password']) . "', '" . $this->db->escape($data['password']) . "')"), true);

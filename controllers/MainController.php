@@ -57,7 +57,7 @@ class MainController {
 		else if (preg_match($this->BASE_API_LOGIN_REGEX, $_SERVER['REQUEST_URI'])) {
 			$controller = new LoginController();
 		}
-		else if (preg_match($this->BASE_API_LOGOUT_REGEX, $_SERVER['REQUEST_URI']) && $authenticate->isAuthorized()) {
+		else if (preg_match($this->BASE_API_LOGOUT_REGEX, $_SERVER['REQUEST_URI'])) {
 			$controller = new LogoutController();
 		}
 		else if (preg_match($this->ALL_USERS_RESOURCE_REGEX, $_SERVER['REQUEST_URI'])) {

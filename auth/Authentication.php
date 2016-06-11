@@ -5,7 +5,12 @@ session_start();
 class Authentication {
 
 	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
+	private $debug;
 	private $db;
+
+	public function __construct () {
+		$this->debug = new Debugger("Authentication.php");
+	}
 
 	public function generate_token ($user) {
 		if (!isset($_SESSION['token'])) {
@@ -15,23 +20,34 @@ class Authentication {
 		}
 	}
 
+	public function session_active () {
+		return isset($_SESSION['token']);
+	}
+
 	public function ignore () {
+		$this->debug->log("[WARNING] Invoked authentication ignore flag. System will by pass authentication", 2);
 		$_SESSION['ignore'] = 1;
 	}
 
 	public function get_token () {
+		$this->debug->log("[INFO] Retrieving token for currently logged in user [TOKEN] " . json_encode($_SESSION['token']) , 5);
 		return isset ($_SESSION['token']) ? $_SESSION['token'] : null;
 	}
 
 	public function get_user () {
+		$this->debug->log("[INFO] Retrieving user data for the currently active token [USER_DATA] " . json_encode($_SESSION[$_SESSION['token']]));
 		$token = isset ($_SESSION['token']) ? $_SESSION['token'] : null;
 		return $token !== null ? $_SESSION[$token] : $this->auth_error;
 	}
 
 	public function isAuthorized () {
 		$ignore = isset($_SESSION['ignore']) ? $_SESSION['ignore'] : 0;
+		if ($ignore) $this->debug->log("[INFO] Authentication ignore flag is set. By Passing Authentication Params", 2);
 		$headers = getallheaders();
 		$_SESSION['ignore'] = 0;
+
+		if ((isset($_SESSION['token']) && isset($headers['token']) && $headers['token'] === $_SESSION['token']))
+			$this->debug->log("[INFO] Authentication Passed. Access is authorized", 3)
 
 		return (isset($_SESSION['token']) && isset($headers['token']) 
 			&& $headers['token'] === $_SESSION['token']) || $ignore;
