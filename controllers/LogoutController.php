@@ -2,8 +2,12 @@
 
 class LogoutController {
 	
+	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
+	private $authentication;
 	private $logout;
+
 	public function __construct() {
+		$this->authentication = new Authentication();
 		$this->logout = new Logout();
 	}
 
@@ -16,10 +20,10 @@ class LogoutController {
 	}
 
 	public function put () {
-		return $this->logout->logoff();
+		return $this->authentication->isAuthorized() ? $this->logout->logoff() : $this->auth_error;
 	}
 
 	public function delete () {
-		return $this->logout->logoff();
+		return $this->authentication->isAuthorized() ? $this->logout->logoff() : $this->auth_error;
 	}
 }

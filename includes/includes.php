@@ -32,6 +32,7 @@ include_once 'utils/DbConn.php';
 
 # PHP Utilities
 include_once 'utils/Debugger.php';
+include_once 'utils/FileManager.php';
 
 # PHP Static Properties
 include_once '.ignore/Properties.php';

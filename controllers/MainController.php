@@ -3,56 +3,55 @@
 class MainController {
 	
 	private $BASE_API_URL_ONLY_REGEX = '/^\/vigilance\/api\/ping$/';
-	private $BASE_API_LOGIN_REGEX = '/^\/vigilance\/api\/login$/';
-	private $BASE_API_LOGOUT_REGEX = '/^\/vigilance\/api\/logout$/';
+	private $BASE_API_LOGIN_REGEX = '/^\/vigilance\/api\/login($|\?.*)/';
+	private $BASE_API_LOGOUT_REGEX = '/^\/vigilance\/api\/logout($|\?.*)/';
 
-	private $ALL_USERS_RESOURCE_REGEX = '/^\/vigilance\/api\/users$/';
+	private $ALL_USERS_RESOURCE_REGEX = '/^\/vigilance\/api\/users($|\?.*)/';
 	private $USER_RESOURCE_REGEX = '/^\/vigilance\/api\/user\/\d{1,}.*/';
-	private $USER_OBJECT_REGEX = '/^\/vigilance\/api\/user$/';
+	private $USER_OBJECT_REGEX = '/^\/vigilance\/api\/user($|\?.*)/';
 
-	private $ALL_POSTS_RESOURCE_REGEX = '/^\/vigilance\/api\/posts$/';
+	private $ALL_POSTS_RESOURCE_REGEX = '/^\/vigilance\/api\/posts($|\?.*)/';
 	private $POST_RESOURCE_REGEX = '/^\/vigilance\/api\/post\/\d{1,}.*/';
-	private $POST_OBJECT_REGEX = '/^\/vigilance\/api\/post$/';
+	private $POST_OBJECT_REGEX = '/^\/vigilance\/api\/post($|\?.*)/';
 
-	private $ALL_SCHOOLS_RESOURCE_REGEX = '/^\/vigilance\/api\/schools$/';
+	private $ALL_SCHOOLS_RESOURCE_REGEX = '/^\/vigilance\/api\/schools($|\?.*)/';
 	private $SCHOOL_RESOURCE_REGEX = '/^\/vigilance\/api\/school\/\d{1,}.*/';
-	private $SCHOOL_OBJECT_REGEX = '/^\/vigilance\/api\/school$/';
+	private $SCHOOL_OBJECT_REGEX = '/^\/vigilance\/api\/school($|\?.*)/';
 
-	private $ALL_ORGANIZATIONS_RESOURCE_REGEX = '/^\/vigilance\/api\/organizations$/';
+	private $ALL_ORGANIZATIONS_RESOURCE_REGEX = '/^\/vigilance\/api\/organizations($|\?.*)/';
 	private $ORGANIZATION_RESOURCE_REGEX = '/^\/vigilance\/api\/organization\/\d{1,}.*/';
-	private $ORGANIZATION_OBJECT_REGEX = '/^\/vigilance\/api\/organization$/';
+	private $ORGANIZATION_OBJECT_REGEX = '/^\/vigilance\/api\/organization($|\?.*)/';
 
-	private $ALL_COMMENTS_RESOURCE_REGEX = '/^\/vigilance\/api\/comments$/';
+	private $ALL_COMMENTS_RESOURCE_REGEX = '/^\/vigilance\/api\/comments($|\?.*)/';
 	private $COMMENTS_RESOURCE_REGEX = '/^\/vigilance\/api\/comment\/\d{1,}.*/';
-	private $COMMENT_OBJECT_REGEX = '/^\/vigilance\/api\/comment$/';
+	private $COMMENT_OBJECT_REGEX = '/^\/vigilance\/api\/comment($|\?.*)/';
 
-	private $ALL_COURSES_RESOURCE_REGEX = '/^\/vigilance\/api\/courses$/';
+	private $ALL_COURSES_RESOURCE_REGEX = '/^\/vigilance\/api\/courses($|\?.*)/';
 	private $COURSES_RESOURCE_REGEX = '/^\/vigilance\/api\/course\/\d{1,}.*/';
-	private $COURSE_OBJECT_REGEX = '/^\/vigilance\/api\/course$/';
+	private $COURSE_OBJECT_REGEX = '/^\/vigilance\/api\/course($|\?.*)/';
 
-    private $ALL_TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfives$/';
+    private $ALL_TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfives($|\?.*)/';
     private $TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfive\/\d{1,}.*/';
-    private $TOPFIVE_OBJECT_REGEX = '/^\/vigilance\/api\/topfive$/';
+    private $TOPFIVE_OBJECT_REGEX = '/^\/vigilance\/api\/topfive($|\?.*)/';
 
-    private $authenticate;
     private $debug;
 
     public function __construct () {
-    	$this->debug = new Debugger();
+    	$this->debug = new Debugger("MainController.php");
     }
 
 	public function execute() {
 
 		$this->debug->log("[INFO] Entering Main Controller execution", 5);
+		$this->debug->log("[INFO] Invoked with HTTP REQUEST_METHOD " . $_SERVER['REQUEST_METHOD'], 5);
 		$return = '{"status": 404, "error": "Resource not found"}';
-		$authenticate = new Authentication();
 		$controller = null;
 		if (!isset($_SERVER['REDIRECT_URL'])) {
-			$this->debug->log("[FATAL] Server did not redirect url. Check .htaccess configurations (MainController::execute)", 1);
+			$this->debug->log("[FATAL] Server did not redirect url. Check .htaccess configurations", 1);
 			return '{"error": "No resource requested"}';
 		}
 		else if (preg_match($this->BASE_API_URL_ONLY_REGEX, $_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
-			$this->debug->log("[INFO] Hit heart beat server api url check (MainController::execute)", 4);
+			$this->debug->log("[INFO] Hit heart beat server api url check", 4);
 			return '{"success": 200, "message": "Vigilance Api is up and running"}';
 		}
 		else if (preg_match($this->BASE_API_LOGIN_REGEX, $_SERVER['REQUEST_URI'])) {
@@ -130,9 +129,6 @@ class MainController {
         }
         else if (preg_match($this->TOPFIVE_OBJECT_REGEX, $_SERVER['REQUEST_URI'])) {
             $controller = new TopFiveController();
-        }
-        else if (!$authenticate->isAuthorized()) {
-        	return '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
         }
 		else {
 			return $return;
