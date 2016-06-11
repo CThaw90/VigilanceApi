@@ -14,7 +14,7 @@ class Debugger {
 	}
 	
 	public function log ($message, $debug_level) {
-		if (isset($_GET['debug']) && $_GET['debug'] >= intval($debug_level)) {
+		if ((isset($_GET['debug']) && $_GET['debug'] >= intval($debug_level)) || Properties::$log_always) {
 			$this->file_manager->append_line(self::$log_file, $message . " ( " . $this->class . " )");
 		}
 	}

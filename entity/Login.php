@@ -16,15 +16,14 @@ class Login extends Entity {
 	}
 
 	public function authenticate ($data) {
-
 		$authenticate = new Authentication();
-		$authenticate->ignore();
 		$auth = null;
 		$data = $this->parse_request_body($data);
-		if ($authenticate->session_active()) {
+		if ($authenticate->session_active() && $this->isnt_the_same_user($authenticate, $data)) {
 			return '{"status": 500, "error": "A User is already logged in to this device. Logout the current user first"}';
 		}
 		else if (isset($data['username']) && isset($data['password'])) {
+			$authenticate->ignore();
 			$auth = json_decode($this->db->select($this->LOGIN_CREDENTIAL . 
 				" username = '" . $this->db->escape($data['username']) . "' and " . 
 				" password in ('" . sha1($data['password']) . "', '" . $this->db->escape($data['password']) . "')"), true);
@@ -38,6 +37,14 @@ class Login extends Entity {
 
 		$this->debug->log("[WARNING] Incorrect username or password entered username=" . $data['username'] . " password=" . $data['password'], 3);
 		return '{"error": "Bad Username or Password"}';
+	}
+
+	private function isnt_the_same_user ($authenticate, $data) {
+		$user = $authenticate->get_user();
+		$this->debug->log("[INFO] Session Username=" . $user['username'] . " Requesting Username=" . $data['username'], 4);
+		$this->debug->log("[INFO] Session Password=" . $user['password'] . " Requesting Password=" . $data['password'], 4);
+		return $user['username'] !== $data['username'] 
+			|| $user['password'] !== $data['password'];
 	}
 
 	function __destruct () {

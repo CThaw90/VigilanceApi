@@ -8,7 +8,7 @@ class LogoutController {
 	private $debug;
 
 	public function __construct() {
-		$this->debug->Debugger("LogoutController.php");
+		$this->debug = new Debugger("LogoutController.php");
 		$this->debug->log("[INFO] Entering Constructor of Logout Controller", 5);
 		$this->authentication = new Authentication();
 		$this->logout = new Logout();

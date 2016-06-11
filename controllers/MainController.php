@@ -59,6 +59,9 @@ class MainController {
 		}
 		else if (preg_match($this->BASE_API_LOGOUT_REGEX, $_SERVER['REQUEST_URI'])) {
 			$controller = new LogoutController();
+			if ($_SERVER['REQUEST_METHOD'] === 'DELETE') { // Skip normal delete logic path
+				return $controller->delete();
+			}
 		}
 		else if (preg_match($this->ALL_USERS_RESOURCE_REGEX, $_SERVER['REQUEST_URI'])) {
 			$controller = new UserController();
