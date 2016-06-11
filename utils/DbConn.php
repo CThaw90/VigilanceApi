@@ -16,7 +16,7 @@ class DbConn {
 	}	
 
 	public function conn () {
-		$this->connection = mysqli_connect($this->hostname, $this->username, $this->password, $this->database);
+		$this->connection = mysqli_connect(Properties::$db_host, Properties::$db_user, Properties::$db_pass, Properties::$db_name);
 	}
 
 	public function select ($query) {

@@ -3,12 +3,14 @@
 class Login extends Entity {
 	
 	private $LOGIN_CREDENTIAL = 'select * from credential where ';
+	private $debug;
 
 	protected $table = "credential";
 	protected $error;
 	protected $db;
 
 	public function __construct () {
+		$this->debug = new Debugger();
 		$this->db = new DbConn();
 		$this->db->conn();
 	}
@@ -26,7 +28,7 @@ class Login extends Entity {
 		}
 
 		if (count($auth)) {
-			print_r ($auth[0]);	
+			$this->debug->log("[INFO] An authorization user entry was found", 5);
 			$authenticate->generate_token($auth[0]);
 			return '{"token":"' . $authenticate->get_token() . '", "user": "' . json_encode($authenticate->get_user()) . '"}';
 		}

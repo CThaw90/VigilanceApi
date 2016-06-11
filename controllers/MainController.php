@@ -2,7 +2,7 @@
 
 class MainController {
 	
-	private $BASE_API_URL_ONLY_REGEX = '/^\/vigilance\/api\/$/';
+	private $BASE_API_URL_ONLY_REGEX = '/^\/vigilance\/api\/ping$/';
 	private $BASE_API_LOGIN_REGEX = '/^\/vigilance\/api\/login$/';
 	private $BASE_API_LOGOUT_REGEX = '/^\/vigilance\/api\/logout$/';
 
@@ -34,22 +34,26 @@ class MainController {
     private $TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfive\/\d{1,}.*/';
     private $TOPFIVE_OBJECT_REGEX = '/^\/vigilance\/api\/topfive$/';
 
-    private $debug = new Debugger();
     private $authenticate;
+    private $debug;
+
+    public function __construct () {
+    	$this->debug = new Debugger();
+    }
 
 	public function execute() {
 
-		$debug->log("[INFO] Entering Main Controller execution", 5);
+		$this->debug->log("[INFO] Entering Main Controller execution", 5);
 		$return = '{"status": 404, "error": "Resource not found"}';
 		$authenticate = new Authentication();
 		$controller = null;
 		if (!isset($_SERVER['REDIRECT_URL'])) {
-			$debug->log("[FATAL] Server did not redirect url. Check .htaccess configurations (MainController::execute)", 1);
+			$this->debug->log("[FATAL] Server did not redirect url. Check .htaccess configurations (MainController::execute)", 1);
 			return '{"error": "No resource requested"}';
 		}
 		else if (preg_match($this->BASE_API_URL_ONLY_REGEX, $_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
-			$debug->log("[INFO] Hit heart beat server api url check (MainController::execute)", 4);
-			return '{"success": 200}';
+			$this->debug->log("[INFO] Hit heart beat server api url check (MainController::execute)", 4);
+			return '{"success": 200, "message": "Vigilance Api is up and running"}';
 		}
 		else if (preg_match($this->BASE_API_LOGIN_REGEX, $_SERVER['REQUEST_URI'])) {
 			$controller = new LoginController();
