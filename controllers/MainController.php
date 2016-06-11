@@ -34,17 +34,21 @@ class MainController {
     private $TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfive\/\d{1,}.*/';
     private $TOPFIVE_OBJECT_REGEX = '/^\/vigilance\/api\/topfive$/';
 
+    private $debug = new Debugger();
     private $authenticate;
 
 	public function execute() {
 
+		$debug->log("[INFO] Entering Main Controller execution", 5);
 		$return = '{"status": 404, "error": "Resource not found"}';
 		$authenticate = new Authentication();
 		$controller = null;
 		if (!isset($_SERVER['REDIRECT_URL'])) {
+			$debug->log("[FATAL] Server did not redirect url. Check .htaccess configurations (MainController::execute)", 1);
 			return '{"error": "No resource requested"}';
 		}
 		else if (preg_match($this->BASE_API_URL_ONLY_REGEX, $_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+			$debug->log("[INFO] Hit heart beat server api url check (MainController::execute)", 4);
 			return '{"success": 200}';
 		}
 		else if (preg_match($this->BASE_API_LOGIN_REGEX, $_SERVER['REQUEST_URI'])) {

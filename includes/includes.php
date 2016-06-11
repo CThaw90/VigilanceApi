@@ -29,3 +29,6 @@ include_once 'entity/Login.php';
 
 # PHP Database Connectors
 include_once 'utils/DbConn.php';
+
+# PHP Utilities
+include_once 'utils/Debugger.php';
