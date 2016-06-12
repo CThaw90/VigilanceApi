@@ -44,8 +44,8 @@ class Organization extends Entity {
 
 	public function update ($data) {
 		$status = "";
-		$data = json_decode($data, true);
-		if ($data === null) {
+		$data = $this->parse_request_body($data);
+		if ($data === null || !count($data)) {
 			$status ='{"status": 500, "message": "Invalid data body object"}';
 		}
 		else if (isset($data['organization_id'])) {

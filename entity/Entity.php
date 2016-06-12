@@ -58,8 +58,9 @@ class Entity {
 		$this->debug->log($request, 5);
 		$data = json_decode($request, true);
 		$data = array_merge($data !== null ? $data : array(), $_POST);
+		$data = $data !== null && count($data) ? $data : $this->parse_form_encoded_body($request);
 		
-		return $data !== null && count($data) ? $data : array_merge(array(), $this->parse_form_encoded_body($request));
+		return $data !== null && count($data) ? $data : $this->parse_www_form_encoded_body($request);
 	}
 
 	private function parse_form_encoded_body ($formData) {
@@ -86,6 +87,18 @@ class Entity {
 				
 				$grab_next_value_in -= 1;
 			}
+		}
+
+		return $parsed_data;
+	}
+
+	private function parse_www_form_encoded_body ($formData) {
+		$form_data_array = explode("&", $formData);
+		$parsed_data = array();
+
+		foreach ($form_data_array as $index => $value) {
+			$key = explode("=", urldecode($value));
+			$parsed_data[$key[0]] = $key[1];
 		}
 
 		return $parsed_data;

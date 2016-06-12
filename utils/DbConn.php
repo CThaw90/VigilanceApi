@@ -2,11 +2,6 @@
 
 class DbConn {
 
-	private $hostname = '127.0.0.1';
-	private $username = 'root';
-	private $password = 'musicismylife90';
-	private $database = 'whatthn2_vigilance';
-
 	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
 	private $authenticate;
 	private $connection;
