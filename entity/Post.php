@@ -9,7 +9,7 @@ class Post extends Entity {
 
 	protected $attrs = array(
 		"text" => array("canUpdate" => true, "needAuth" => false),
-		"media" => array("canUpdate" => true, "needAuth" => false),
+		"media" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
 		"credential_id" => array("canUpdate" => true, "authorize" => true),
 		"post_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);

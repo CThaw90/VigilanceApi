@@ -12,7 +12,7 @@ class School extends Entity {
 		"display_name" => array("canUpdate" => true, "needAuth" => false), 
 		"email" => array("canUpdate" => true, "needAuth" => false), 
 		"city" => array("canUpdate" => true, "needAuth" => false), 
-		"img_src" => array("canUpdate" => true, "needAuth" => false),
+		"img_src" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
 		"credential_id" => array("canUpdate" => true, "authorize" => true),
 		"school_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);

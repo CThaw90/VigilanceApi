@@ -12,7 +12,7 @@ class User extends Entity {
 		"password" => array("canUpdate" => true, "needAuth" => true),
 		"age" => array("canUpdate" => true, "needAuth" => false),
 		"email" => array("canUpdate" => true, "needAuth" => false),
-		"img_src" => array("canUpdate" => true, "needAuth" => false),
+		"img_src" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
 		"name" => array("canUpdate" => true, "needAuth" => false),
 		"user_type" => array("canUpdate" => false, "needAuth" => false),
 		"username" => array("canUpdate" => true, "needAuth" => false),

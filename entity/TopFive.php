@@ -14,7 +14,7 @@ class TopFive extends Entity {
         "name" => array("canUpdate" => true, "needAuth" => false),
         "email" => array("canUpdate" => true, "needAuth" => false),
         "city" => array("canUpdate" => true, "needAuth" => false),
-        "img_src" => array("canUpdate" => true, "needAuth" => false),
+        "img_src" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
         "unique_id" => array("canUpdate" => false, "needAuth" => false),
         "topfive_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true, "postIgnore" => true)
     );
