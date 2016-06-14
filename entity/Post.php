@@ -4,12 +4,12 @@ class Post extends Entity {
 	
 	private $GET_ALL = "select * from post p inner join credential u on u.credential_id = p.credential_id";
 	private $GET_POST_BY_ID = 'select * from post where post_id = ${1}';
-	private $DELETE_POST = 'post_id = ${1}';
-
+	
+	protected $DELETE_BY_ID = 'post_id = ${1}';
 	protected $UPDATE_BY_ID = 'post_id = ${1}';
 	protected $attrs = array(
 		"text" => array("canUpdate" => true, "needAuth" => false),
-		"media" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
+		"media" => array("canUpdate" => false, "needAuth" => false, "fileUpload" => true),
 		"credential_id" => array("canUpdate" => true, "authorize" => true),
 		"post_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
@@ -43,13 +43,8 @@ class Post extends Entity {
 		return parent::update($data, $updateBy);
 	}
 
-	public function delete ($id) {
-		if ($this->isAuthorized(array("post_id" => $id), $this->attrs)) {
-			return $this->db->delete("post", preg_replace("/(\d+)/", $this->DELETE_POST, $id)) ? 
-				'{"status": 200, "message": "Post deleted"}' : '{"status": 500, "message": "Post could not be deleted"}';
-		}
-
-		return $this->auth_error;
+	public function delete ($id, $deleteBy) {
+		return parent::delete($id, $deleteBy);
 	}
 
 	function __destruct() {

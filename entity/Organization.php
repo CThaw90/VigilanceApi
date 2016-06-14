@@ -4,8 +4,8 @@ class Organization extends Entity {
 
 	private $GET_ALL = "select * from organization";
 	private $GET_ORG_BY_ID = 'select * from organization where organization_id = ${1}';
-	private $DELETE_ORG = 'organization_id = ${1}';
-
+	
+	protected $DELETE_BY_ID = 'organization_id = ${1}';
 	protected $UPDATE_BY_ID = 'organization_id = ${1}';
 	protected $attrs = array(
 		"name" => array("canUpdate" => true, "needAuth" => false),
@@ -13,7 +13,7 @@ class Organization extends Entity {
 		"display_name" => array("canUpdate" => true, "needAuth" => false),
 		"city" => array("canUpdate" => true, "needAuth" => false),
 		"email" => array("canUpdate" => true, "needAuth" => false),
-		"img_src" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
+		"img_src" => array("canUpdate" => false, "needAuth" => false, "fileUpload" => true),
 		"organization_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
 	protected $table = "organization";
@@ -46,13 +46,8 @@ class Organization extends Entity {
 		return parent::update($data, $updateBy);
 	}
 
-	public function delete ($id) {
-		if ($this->isAuthorized(array("organization_id" => $id))) {
-			return $this->db->delete("organization", preg_replace("/(\d+)/", $this->DELETE_ORG, $id)) ? 
-				'{"status": 200, "message": "Organization deleted"}' : '{"status": 500, "message": "Organization could not be deleted"}';
-		}
-
-		return $this->auth_error;
+	public function delete ($id, $deleteBy) {
+		return parent::delete($id, $deleteBy);
 	}
 
 	function __destruct() {

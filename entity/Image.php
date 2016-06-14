@@ -13,7 +13,7 @@ class Image {
 
 	public function generate_url ($folder) {
 		$session = new Authentication();
-		$user = $session->get_user();
+		$user = $session->session_active() ? $session->get_user() : false;
 		$image_name = "/no_image.png";
 		if (count(self::$images)) {
 			$this->debug->log("Image object has been uploaded to the cache image array", 5);
@@ -23,8 +23,11 @@ class Image {
 			$this->debug->log("No image object has been uploaded", 5);
 		}
 
-		self::$folder = Properties::$img_folder . $user['username'] . $folder;
-		return Properties::$host_name . $user['username'] . $folder . $image_name;
+		$user_folder = $user ? $user['username'] : $session->get_cache()["username"] ;
+		$this->debug->log("Setting user image folder to " . $user_folder, 5);
+
+		self::$folder = Properties::$img_folder . $user_folder . $folder;
+		return Properties::$host_name . $user_folder . $folder . $image_name;
 
 	}
 

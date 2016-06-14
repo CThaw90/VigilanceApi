@@ -4,8 +4,8 @@ class Course extends Entity {
 
 	private $GET_COURSE_BY_ID = 'select * from course where course_id = ${1}';
 	private $GET_ALL = "select * from course";
-	private $DELETE_COURSE = 'course_id = ${1}';
-
+	
+	protected $DELETE_BY_ID = 'course_id = ${1}';
 	protected $UPDATE_BY_ID = 'course_id = ${1}';
 	protected $attrs = array(
 		"school_id" => array("canUpdate" => false, "needAuth" => false),
@@ -47,13 +47,8 @@ class Course extends Entity {
 		return parent::update($data, $updateBy);
 	}
 
-	public function delete ($id) {
-		if ($this->isAuthorized(array("course_id" => $id))) {
-			return $this->db->delete("course", preg_replace("/(\d+)/", $this->DELETE_COURSE, $id)) ? 
-				'{"status": 200, "message": "Course deleted"}' : '{"status": 500, "message": "Course could not be deleted"}';
-		}
-
-		return $this->auth_error;
+	public function delete ($id, $deleteBy) {
+		return parent::delete($id, $deleteBy);
 	}
 
 	function __destruct() {

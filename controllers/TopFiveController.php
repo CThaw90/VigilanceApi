@@ -2,6 +2,7 @@
 
 class TopFiveController {
 
+    private $primary_key = "topfive_id";
     private $topfive;
     public function __construct() {
         $this->topfive = new TopFive();
@@ -20,10 +21,10 @@ class TopFiveController {
     }
 
     public function put ($data) {
-        return $this->topfive->update($data, "topfive_id");
+        return $this->topfive->update($data, $this->primary_key);
     }
 
     public function delete ($id) {
-        return $this->topfive->delete($id);
+        return $this->topfive->delete($id, $this->primary_key);
     }
 } 

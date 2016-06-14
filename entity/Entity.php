@@ -3,13 +3,15 @@
 class Entity {
 
 	protected $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
-	protected $no_auth = false;
+	private $no_auth = false;
 	private $error;
 	private $debug;
 	private $image;
+	private $auth;
 
 	public function __construct () {
 		$this->debug = new Debugger("Entity.php");
+		$this->auth = new Authentication();
 	}
 
 	protected function create ($data) {
@@ -60,6 +62,14 @@ class Entity {
 				'{"status": 500, "message": "' . $this->table . ' update failed"}';		
 	}
 
+	protected function delete ($id, $deleteBy) {
+		if ($this-isAuthorized(array($deleteBy => $id), $this->attrs)) {
+			return $this->db->delete($this->table, preg_replace("/(\d+)/", $this->DELETE_BY_ID, $id)) ?
+				'{"status": 200, "message": "' . $this->table . ' deleted"}' : 
+				'{"status": 500, "message": "' . $this->table . ' could not be deleted"}';
+		}
+	}
+
 	protected function validate_object($data, $attrs) {
 		$valid = true;
 		foreach ($attrs as $key => $value) {
@@ -79,7 +89,7 @@ class Entity {
 			if (isset($data[$key]) && ($new || $value['canUpdate']) && (!isset($value['postIgnore']) || !$value['postIgnore'])) {
 				$transformed_object[$key] = $data[$key];
 			}
-			else if (isset($value['fileUpload']) && $value['fileUpload']) {
+			else if ($new || $value['canUpdate'] && (isset($value['fileUpload']) && $value['fileUpload'])) {
 				$this->image->prepare($key);
 				$transformed_object[$key] = $this->image->url('/' . $this->table);
 				
@@ -103,6 +113,7 @@ class Entity {
 		$parsed_data = array();
 		$grab_next_value_in = 0;
 		$file_type = array (
+			"capture" => false,
 			"video" => false,
 			"image" => array(
 				"jpeg" => false,
@@ -144,10 +155,12 @@ class Entity {
 				else if ($file_type["image"]["jpeg"] || $file_type["image"]["jpg"]) {
 					$this->debug->log("[INFO] Image file JPEG/JPG detected.", 5);
 					$file_type["image"]["jpeg"] = $file_type["image"]["jpg"] = false;
+					
 				}
 				else if ($file_type["image"]["png"]) {
 					$this->debug->log("[INFO] Image file PNG detected.", 5);
-					$file_type["image"]["png"] = false;				
+					// $file_type["image"]["png"] = false;				
+					$file_type["capture"] = true;
 				}
 				else if ($file_type["image"]["gif"]) {
 					$this->debug->log("[INFO] Image file GIF detected.", 5);
@@ -179,6 +192,15 @@ class Entity {
 						break;
 				}
 			}
+			else if ($file_type["capture"]) {
+
+				if ($file_type["image"]["png"]) {
+					file_put_contents(".ignore/images/test.png", $value);
+				}
+			}
+			else {
+				$this->debug->log("Skipping over file portion with data type " . gettype($value) . " and value " . $value, 5);
+			}
 
 			$grab_next_value_in -= $grab_next_value_in ? 1 : 0;
 		}
@@ -198,9 +220,13 @@ class Entity {
 		return $parsed_data;
 	}
 
+	protected function bypass_auth ($args) {
+		$this->auth->store_cache($args);
+		$this->no_auth = true;
+	}
+
 	protected function isAuthorized ($data, $attrs) {
-		$auth = new Authentication();
-		$this->error = $this->no_auth || $auth->isAuthorized() && $auth->authorize_action($this->table, $data, $attrs) ? null : $this->auth_error;
+		$this->error = $this->no_auth || $this->auth->isAuthorized() && $this->auth->authorize_action($this->table, $data, $attrs) ? null : $this->auth_error;
 		$this->no_auth = false;
 		return $this->error === null;
 	}

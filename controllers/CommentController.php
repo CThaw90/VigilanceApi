@@ -2,6 +2,7 @@
 
 class CommentController {
 	
+	private $primary_key = "comment_id";
 	private $comment;
 	public function __construct() {
 		$this->comment = new Comment();
@@ -20,10 +21,10 @@ class CommentController {
 	}
 
 	public function put ($data) {
-		return $this->comment->update($data, "comment_id");
+		return $this->comment->update($data, $this->primary_key);
 	}
 
 	public function delete ($id) {
-		return $this->comment->delete($id);
+		return $this->comment->delete($id, $this->primary_key);
 	}
 }

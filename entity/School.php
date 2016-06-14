@@ -4,15 +4,15 @@ class School extends Entity {
 	
 	private $GET_SCHOOL_BY_ID = 'select * from school where school_id = ${1}';
 	private $GET_ALL = "select * from school;";
-	private $DELETE_SCHOOL = 'school_id = ${1}';
-
+	
+	protected $DELETE_BY_ID = 'school_id = ${1}';
 	protected $UPDATE_BY_ID = 'school_id = ${1}';
 	protected $attrs = array(
 		"name" => array("canUpdate" => true, "needAuth" => false), 
 		"display_name" => array("canUpdate" => true, "needAuth" => false), 
 		"email" => array("canUpdate" => true, "needAuth" => false), 
 		"city" => array("canUpdate" => true, "needAuth" => false), 
-		"img_src" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
+		"img_src" => array("canUpdate" => false, "needAuth" => false, "fileUpload" => true),
 		"credential_id" => array("canUpdate" => true, "authorize" => true),
 		"school_id" => array("canUpdate" => true, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
@@ -47,13 +47,8 @@ class School extends Entity {
 		return parent::update($data, $updateBy);
 	}
 
-	public function delete ($id) {
-		if ($this->isAuthorized(array("school_id" => $id), $this->attrs)) {
-			return $this->db->delete("school", preg_replace("/(\d+)/", $this->DELETE_SCHOOL, $id)) ? 
-				'{"status": 200, "message": "School deleted"}' : '{"status": 500, "message": "School could not be deleted"}';
-		}
-
-		return $this->auth_error;
+	public function delete ($id, $deleteBy) {
+		return parent::delete($id, $deleteBy);
 	}
 
 	function __destruct() {

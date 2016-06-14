@@ -2,6 +2,7 @@
 
 class UserController {
 	
+	private $primary_key = "credential_id";
 	private $user;
 	public function __construct () {
 		$this->user = new User();
@@ -20,10 +21,10 @@ class UserController {
 	}
 
 	public function put ($data) {
-		return $this->user->update($data, "credential_id");
+		return $this->user->update($data, $this->primary_key);
 	}
 
 	public function delete ($id) {
-		return $this->user->delete($id);
+		return $this->user->delete($id, $this->primary_key);
 	}
 }

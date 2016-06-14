@@ -2,6 +2,7 @@
 
 class CourseController {
 	
+	private $primary_key = "course_id";
 	private $course;
 	public function __construct() {
 		$this->course = new Course();
@@ -20,10 +21,10 @@ class CourseController {
 	}
 
 	public function put($data) {
-		return $this->course->update($data, "course_id");
+		return $this->course->update($data, $this->primary_key);
 	}
 
 	public function delete ($id) {
-		return $this->course->delete($id);
+		return $this->course->delete($id, $this->primary_key);
 	}
 }

@@ -4,8 +4,8 @@ class Comment extends Entity {
 	
 	private $GET_COMMENT_BY_ID = 'select * from comment where comment_id = ${1}';
 	private $GET_ALL = "select * from comment";
-	private $DELETE_COMMENT = 'comment_id = ${1}';
-
+	
+	protected $DELETE_BY_ID = 'comment_id = ${1}';
 	protected $UPDATE_BY_ID = 'comment_id = ${1}';
 	protected $attrs = array(
 		"text" => array("canUpdate" => true, "needAuth" => false),
@@ -36,7 +36,7 @@ class Comment extends Entity {
 		return $this->db->select(preg_replace("/(\d+)/", $this->GET_COMMENT_BY_ID, $id));
 	}
 
-	public function create ($data) { // post_id, credential_id, text
+	public function create ($data) {
 		return parent::create($data);
 	}
 
@@ -44,13 +44,8 @@ class Comment extends Entity {
 		return parent::update($data, $updateBy);
 	}
 
-	public function delete($id) {
-		if ($this->isAuthorized(array("comment_id" => $id), $this->attrs)) {
-			return $this->db->delete("comment", preg_replace("/(\d+)/", $this->DELETE_COMMENT, $id)) ? 
-				'{"status": 200, "message": "Comment deleted"}' : '{"status": 500, "message": "Comment could not be deleted"}';
-		}
-
-		return $this->auth_error;
+	public function delete($id, $deleteBy) {
+		return parent::delete($id, $deleteBy);
 	}
 
 	function __destruct() {

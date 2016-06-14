@@ -9,6 +9,7 @@ class Authentication {
 	private $db;
 
 	private static $token_key = "Token";
+	private static $cache;
 
 	public function __construct () {
 		$this->debug = new Debugger("Authentication.php");
@@ -33,6 +34,14 @@ class Authentication {
 	public function ignore () {
 		$this->debug->log("[WARNING] Invoked authentication ignore flag. System will by pass authentication", 2);
 		$_SESSION['ignore'] = 1;
+	}
+
+	public function store_cache ($data) {
+		self::$cache = $data;
+	}
+
+	public function get_cache () {
+		return self::$cache;
 	}
 
 	public function get_token () {

@@ -2,6 +2,7 @@
 
 class OrganizationController {
 	
+	private $primary_key = "organization_id";
 	private $organization;
 	public function __construct() {
 		$this->organization = new Organization();
@@ -20,10 +21,10 @@ class OrganizationController {
 	}
 
 	public function put($data) {
-		return $this->organization->update($data, "organization_id");
+		return $this->organization->update($data, $this->primary_key);
 	}
 
 	public function delete($id) {
-		return $this->organization->delete($id);
+		return $this->organization->delete($id, $this->primary_key);
 	}
 }

@@ -11,7 +11,7 @@ class User extends Entity {
 		"password" => array("canUpdate" => true, "needAuth" => true),
 		"age" => array("canUpdate" => true, "needAuth" => false),
 		"email" => array("canUpdate" => true, "needAuth" => false),
-		"img_src" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
+		"img_src" => array("canUpdate" => false, "needAuth" => false, "fileUpload" => true),
 		"name" => array("canUpdate" => true, "needAuth" => false),
 		"user_type" => array("canUpdate" => false, "needAuth" => false),
 		"username" => array("canUpdate" => true, "needAuth" => false),
@@ -41,7 +41,7 @@ class User extends Entity {
 	}
 
 	public function create ($data) {
-		$this->no_auth = true;
+		$this->bypass_auth($this->parse_request_body($data));
 		return parent::create($data);
 	}
 
@@ -49,13 +49,8 @@ class User extends Entity {
 		return parent::update($data, $updateBy);
 	}
 
-	public function delete ($id) {
-		if ($this->isAuthorized(array('credential_id' => $id))) {
-			return $this->db->delete("credential", preg_replace("/(\d+)/", $this->DELETE_USER, $id)) ? 
-				'{"status": 200, "message": "User deleted"}' : '{"status": 500, "message": "User could not be deleted"}';
-		}
-
-		return $this->auth_error;
+	public function delete ($id, $deleteBy) {
+		return parent::delete($id, $deleteBy);
 	}
 
 	function __destruct () {

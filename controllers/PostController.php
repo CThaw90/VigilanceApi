@@ -2,6 +2,7 @@
 
 class PostController {
 
+	private $primary_key = "post_id";
 	private $post;
 	public function __construct() {
 		$this->post = new Post();
@@ -20,10 +21,10 @@ class PostController {
 	}
 
 	public function put($data) {
-		return $this->post->update($data, "post_id");
+		return $this->post->update($data, $this->primary_key);
 	}
 
 	public function delete ($id) {
-		return $this->post->delete($id);
+		return $this->post->delete($id, $this->primary_key);
 	}
 }
