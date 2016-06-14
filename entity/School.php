@@ -4,9 +4,9 @@ class School extends Entity {
 	
 	private $GET_SCHOOL_BY_ID = 'select * from school where school_id = ${1}';
 	private $GET_ALL = "select * from school;";
-	private $UPDATE_BY_ID = 'school_id = ${1}';
 	private $DELETE_SCHOOL = 'school_id = ${1}';
 
+	protected $UPDATE_BY_ID = 'school_id = ${1}';
 	protected $attrs = array(
 		"name" => array("canUpdate" => true, "needAuth" => false), 
 		"display_name" => array("canUpdate" => true, "needAuth" => false), 
@@ -43,20 +43,8 @@ class School extends Entity {
 		return parent::create($data);
 	}
 
-	public function update ($data) {
-		$status = "";
-		$data = $this->parse_request_body($data);
-		if ($data === null || !count($data)) {
-			$status = '{"status": 500, "message": "Invalid data body object"}';
-		}
-		else if (isset($data['school_id'])) {
-			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
-		}
-		else {
-			$status = '{"status": 500, "message": "School Update failed. No update type declaration."}';
-		}
-
-		return $status;
+	public function update ($data, $updateBy) {
+		return parent::update($data, $updateBy);
 	}
 
 	public function delete ($id) {
@@ -66,13 +54,6 @@ class School extends Entity {
 		}
 
 		return $this->auth_error;
-	}
-
-	private function update_by_id ($data) {
-		return $this->db->update("school", $this->transform($data, $this->attrs, false), 
-			preg_replace("/(\d+)/", $this->UPDATE_BY_ID, $data['school_id'])) ? 
-				'{"status": 200, "message": "School updated successfully"}' :
-				'{"status": 500, "message": "School update failed"}';
 	}
 
 	function __destruct() {

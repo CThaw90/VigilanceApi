@@ -4,9 +4,9 @@ class Post extends Entity {
 	
 	private $GET_ALL = "select * from post p inner join credential u on u.credential_id = p.credential_id";
 	private $GET_POST_BY_ID = 'select * from post where post_id = ${1}';
-	private $UPDATE_BY_ID = 'post_id = ${1}';
 	private $DELETE_POST = 'post_id = ${1}';
 
+	protected $UPDATE_BY_ID = 'post_id = ${1}';
 	protected $attrs = array(
 		"text" => array("canUpdate" => true, "needAuth" => false),
 		"media" => array("canUpdate" => true, "needAuth" => false, "fileUpload" => true),
@@ -39,21 +39,8 @@ class Post extends Entity {
 		return parent::create($data);
 	}
 
-	public function update ($data) {
-		$status = null;
-
-		$data = $this->parse_request_body($data);
-        if ($data === null || !count($data)) {
-			$status = '{"status": 500, "message": "Invalid data body object"}';
-		}
-		else if (isset($data['post_id'])) {
-			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
-		}
-		else {
-			$status = '{"status": 500, "message": "Post Update failed. No update type declaration."}';
-		}
-
-		return $status;
+	public function update ($data, $updateBy) {
+		return parent::update($data, $updateBy);
 	}
 
 	public function delete ($id) {
@@ -63,13 +50,6 @@ class Post extends Entity {
 		}
 
 		return $this->auth_error;
-	}
-
-	private function update_by_id ($data) {
-		return $this->db->update("post", $this->transform($data, $this->attrs, false), 
-			preg_replace("/(\d+)/", $this->UPDATE_BY_ID, $data['post_id'])) ? 
-				'{"status": 200, "message": "Post updated successfully"}' :
-				'{"status": 500, "message": "Post update failed"}';
 	}
 
 	function __destruct() {

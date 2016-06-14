@@ -20,7 +20,7 @@ class SchoolController {
 	}
 
 	public function put($data) {
-		return $this->school->update($data);
+		return $this->school->update($data, "school_id");
 	}
 
 	public function delete($id) {

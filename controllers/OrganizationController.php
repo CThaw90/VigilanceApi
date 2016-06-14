@@ -20,7 +20,7 @@ class OrganizationController {
 	}
 
 	public function put($data) {
-		return $this->organization->update($data);
+		return $this->organization->update($data, "organization_id");
 	}
 
 	public function delete($id) {

@@ -20,7 +20,7 @@ class CommentController {
 	}
 
 	public function put ($data) {
-		return $this->comment->update($data);
+		return $this->comment->update($data, "comment_id");
 	}
 
 	public function delete ($id) {

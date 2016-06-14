@@ -20,7 +20,7 @@ class CourseController {
 	}
 
 	public function put($data) {
-		return $this->course->update($data);
+		return $this->course->update($data, "course_id");
 	}
 
 	public function delete ($id) {

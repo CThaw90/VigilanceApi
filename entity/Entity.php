@@ -37,6 +37,29 @@ class Entity {
 		return $status;
 	}
 
+	protected function update ($data, $updateBy) {
+		$status = "";
+		$data = $this->parse_request_body($data);
+		if ($data === null || !count($data)) {
+			$status = '{"status": 500, "message": "Invalid data body object"}';
+		}
+		else if (isset($data[$updateBy])) {
+			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data, $updateBy) : $this->auth_error;
+		}
+		else {
+			$status = '{"status": 500, "message": "' . $this->table . ' update failed. No update type declaration."}';
+		}
+
+		return $status;
+	}
+
+	protected function update_by_id ($data, $updateBy) {
+		return $this->db->update($this->table, $this->transform($data, $this->attrs, false),
+			preg_replace("/(\d+)/", $this->UPDATE_BY_ID, $data[$updateBy])) ?
+				'{"status": 200, "message": "' . $this->table . ' updated successfully"}' :
+				'{"status": 500, "message": "' . $this->table . ' update failed"}';		
+	}
+
 	protected function validate_object($data, $attrs) {
 		$valid = true;
 		foreach ($attrs as $key => $value) {

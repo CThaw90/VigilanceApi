@@ -20,7 +20,7 @@ class UserController {
 	}
 
 	public function put ($data) {
-		return $this->user->update($data);
+		return $this->user->update($data, "credential_id");
 	}
 
 	public function delete ($id) {

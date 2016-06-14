@@ -3,11 +3,10 @@
 class User extends Entity {
 	
 	private $GET_CRED_BY_ID = 'select * from credential where credential_id = ${1}';
-	private $UPDATE_CRED_BY_ID = 'credential_id = ${1}';
-
 	private $GET_ALL = "select * from credential";
 	private $DELETE_USER = 'credential_id = ${1}';
 
+	protected $UPDATE_BY_ID = 'credential_id = ${1}';
 	protected $attrs = array (
 		"password" => array("canUpdate" => true, "needAuth" => true),
 		"age" => array("canUpdate" => true, "needAuth" => false),
@@ -46,20 +45,8 @@ class User extends Entity {
 		return parent::create($data);
 	}
 
-	public function update ($data) {
-		$status = null;
-		$data = $this->parse_request_body($data);
-		if ($data === null || !count($data)) {
-			$status = '{"status": 500, "message": "Invalid data body object"}';
-		}
-		else if (isset($data['credential_id'])) {
-			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
-		}
-		else {
-			$status = '{"status": 500, "message": "User Update failed. No update type declaration."}';
-		}
-
-		return $status;
+	public function update ($data, $updateBy) {
+		return parent::update($data, $updateBy);
 	}
 
 	public function delete ($id) {
@@ -69,13 +56,6 @@ class User extends Entity {
 		}
 
 		return $this->auth_error;
-	}
-
-	private function update_by_id ($data) {
-		return $this->db->update("credential", $this->transform($data, $this->attrs, false), 
-			preg_replace("/(\d+)/", $this->UPDATE_CRED_BY_ID, $data['credential_id'])) ? 
-				'{"status": 200, "message": "User updated successfully"}' :
-				'{"status": 500, "message": "User update failed"}';
 	}
 
 	function __destruct () {

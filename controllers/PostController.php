@@ -20,7 +20,7 @@ class PostController {
 	}
 
 	public function put($data) {
-		return $this->post->update($data);
+		return $this->post->update($data, "post_id");
 	}
 
 	public function delete ($id) {

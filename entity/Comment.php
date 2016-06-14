@@ -4,9 +4,9 @@ class Comment extends Entity {
 	
 	private $GET_COMMENT_BY_ID = 'select * from comment where comment_id = ${1}';
 	private $GET_ALL = "select * from comment";
-	private $UPDATE_COMMENT_BY_ID = 'comment_id = ${1}';
 	private $DELETE_COMMENT = 'comment_id = ${1}';
 
+	protected $UPDATE_BY_ID = 'comment_id = ${1}';
 	protected $attrs = array(
 		"text" => array("canUpdate" => true, "needAuth" => false),
 		"credential_id" => array("canUpdate" => false, "authorize" => true),
@@ -40,20 +40,8 @@ class Comment extends Entity {
 		return parent::create($data);
 	}
 
-	public function update ($data) {
-		$status = "";
-		$data = $this->parse_request_body($data);
-		if ($data === null || !count($data)) {
-			$status = '{"status": 500, "message": "Invalid data body object"}';
-		}
-		else if (isset($data['comment_id'])) {
-			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
-		}
-		else {
-			$status = '{"status": 500, "message": "Comment Update failed. No update type declaration."}';
-		}
-
-		return $status;
+	public function update ($data, $updateBy) {
+		return parent::update($data, $updateBy);
 	}
 
 	public function delete($id) {
@@ -63,13 +51,6 @@ class Comment extends Entity {
 		}
 
 		return $this->auth_error;
-	}
-
-	private function update_by_id ($data) {
-		return $this->db->update("comment", $this->transform($data, $this->attrs, false),
-			preg_replace("/(\d+)/", $this->UPDATE_COMMENT_BY_ID, $data['comment_id'])) ?
-				'{"status": 200, "message": "Comment updated successfully"}' :
-				'{"status": 500, "message": "Comment update failed"}';		
 	}
 
 	function __destruct() {

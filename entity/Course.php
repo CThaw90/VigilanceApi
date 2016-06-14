@@ -5,8 +5,8 @@ class Course extends Entity {
 	private $GET_COURSE_BY_ID = 'select * from course where course_id = ${1}';
 	private $GET_ALL = "select * from course";
 	private $DELETE_COURSE = 'course_id = ${1}';
-	private $UPDATE_COURSE_BY_ID = 'course_id = ${1}';
 
+	protected $UPDATE_BY_ID = 'course_id = ${1}';
 	protected $attrs = array(
 		"school_id" => array("canUpdate" => false, "needAuth" => false),
 		"credential_id" => array("canUpdate" => false, "authorize" => true),
@@ -15,7 +15,7 @@ class Course extends Entity {
 		"name" => array("canUpdate" => true, "needAuth" => false),
 		"course_id" => array("canUpdate" => false, "needAuth" => false, "authToken" => true, "postIgnore" => true)
 	);
-	
+
 	protected $table = "course";
 	protected $error;
 	protected $db;
@@ -43,20 +43,8 @@ class Course extends Entity {
 		return parent::create($data);
 	}
 
-	public function update ($data) {
-		$status = null;
-		$data = $this->parse_request_body($data);
-		if ($data === null || !count($data)) {
-			$status = '{"status": 500, "message": "Invalid data body object"}';
-		}
-		else if (isset($data['course_id'])) {
-			$status = $this->isAuthorized($data, $this->attrs) ? $this->update_by_id($data) : $this->auth_error;
-		}
-		else {
-			$status = '{"status": 500, "message": "Course Update failed. No update type declaration."}';
-		}
-
-		return $status;
+	public function update($data, $updateBy) {
+		return parent::update($data, $updateBy);
 	}
 
 	public function delete ($id) {
@@ -66,13 +54,6 @@ class Course extends Entity {
 		}
 
 		return $this->auth_error;
-	}
-
-	private function update_by_id ($data) {
-		return $this->db->update("course", $this->transform($data, $this->attrs, false), 
-			preg_replace("/(\d+)/", $this->UPDATE_COURSE_BY_ID, $data['course_id'])) ? 
-				'{"status": 200, "message": "Course updated successfully"}' :
-				'{"status": 500, "message": "Course update failed"}';
 	}
 
 	function __destruct() {

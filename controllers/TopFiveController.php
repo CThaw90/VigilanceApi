@@ -20,7 +20,7 @@ class TopFiveController {
     }
 
     public function put ($data) {
-        return $this->topfive->update($data);
+        return $this->topfive->update($data, "topfive_id");
     }
 
     public function delete ($id) {
