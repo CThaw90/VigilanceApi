@@ -6,12 +6,14 @@ class Entity {
 	protected $no_auth = false;
 	private $error;
 	private $debug;
+	private $image;
 
 	public function __construct () {
 		$this->debug = new Debugger("Entity.php");
 	}
 
 	protected function create ($data) {
+		$this->image = new ImageController();
 		$status = null;
 		$this->debug->log("[Preparing to create object with table id " . $this->table, 3);
         $data = $this->parse_request_body($data);
@@ -25,6 +27,7 @@ class Entity {
 
 			if ($status === '{"status": 200, "message": "New ' . $this->table . ' created"}') {
 				$this->debug->log("Object successfully created. Creating any queued images", 3);
+				$this->image->save();
 			}
 		}
 		else {
@@ -52,6 +55,11 @@ class Entity {
 		foreach ($attrs as $key => $value) {
 			if (isset($data[$key]) && ($new || $value['canUpdate']) && (!isset($value['postIgnore']) || !$value['postIgnore'])) {
 				$transformed_object[$key] = $data[$key];
+			}
+			else if (isset($value['fileUpload']) && $value['fileUpload']) {
+				$this->image->prepare($key);
+				$transformed_object[$key] = $this->image->url('/' . $this->table);
+				
 			}
 		}
 
