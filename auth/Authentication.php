@@ -134,7 +134,7 @@ class Authentication {
 	}
 
 	private function authorize_delete ($table, $data, $attrs) {
-		return false;
+		return $this->authorize_put($table, $data, $attrs);
 	}
 
 	public function destroy_token () {

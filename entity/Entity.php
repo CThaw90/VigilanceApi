@@ -63,11 +63,13 @@ class Entity {
 	}
 
 	protected function delete ($id, $deleteBy) {
-		if ($this-isAuthorized(array($deleteBy => $id), $this->attrs)) {
+		if ($this->isAuthorized(array($deleteBy => $id), $this->attrs)) {
 			return $this->db->delete($this->table, preg_replace("/(\d+)/", $this->DELETE_BY_ID, $id)) ?
 				'{"status": 200, "message": "' . $this->table . ' deleted"}' : 
 				'{"status": 500, "message": "' . $this->table . ' could not be deleted"}';
 		}
+
+		return $this->auth_error;
 	}
 
 	protected function validate_object($data, $attrs) {
@@ -84,15 +86,18 @@ class Entity {
 	}
 
 	protected function transform ($data, $attrs, $new) {
+
 		$transformed_object = array();
 		foreach ($attrs as $key => $value) {
 			if (isset($data[$key]) && ($new || $value['canUpdate']) && (!isset($value['postIgnore']) || !$value['postIgnore'])) {
 				$transformed_object[$key] = $data[$key];
 			}
-			else if ($new || $value['canUpdate'] && (isset($value['fileUpload']) && $value['fileUpload'])) {
+			else if (($new || $value['canUpdate']) && (isset($value['fileUpload']) && $value['fileUpload']) && 
+					 (!isset($value['postIgnore']) || !$value['postIgnore'])) {
+
+				$this->debug->log("[INFO] Evaluating new file upload key " . $key, 5);
 				$this->image->prepare($key);
 				$transformed_object[$key] = $this->image->url('/' . $this->table);
-				
 			}
 		}
 

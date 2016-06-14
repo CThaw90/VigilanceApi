@@ -4,8 +4,8 @@ class User extends Entity {
 	
 	private $GET_CRED_BY_ID = 'select * from credential where credential_id = ${1}';
 	private $GET_ALL = "select * from credential";
-	private $DELETE_USER = 'credential_id = ${1}';
-
+	
+	protected $DELETE_BY_ID = 'credential_id = ${1}';
 	protected $UPDATE_BY_ID = 'credential_id = ${1}';
 	protected $attrs = array (
 		"password" => array("canUpdate" => true, "needAuth" => true),
