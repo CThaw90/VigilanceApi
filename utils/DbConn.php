@@ -17,7 +17,7 @@ class DbConn {
 	}
 
 	public function select ($query) {
-		$this->debug->log("[INFO] Running mysql query " . $query, 5);
+		$this->debug->log("Selecting record(s) from database with query " . $query, 5);
 		$result_set = mysqli_query($this->connection, $query);
 		$result = array();
 		while ($row = mysqli_fetch_array($result_set, MYSQLI_ASSOC)) {
@@ -39,6 +39,7 @@ class DbConn {
 		}
 
 		$query = $query_table . $query_columns . ") VALUES " . $query_values . ")";
+		$this->debug->log("Inserting record into database with query " . $query, 5);
 		return mysqli_query($this->connection, $query);
 	}
 
@@ -51,10 +52,12 @@ class DbConn {
 			$comma = ", ";
 		}
 		$query = $query_table . $query_columns . " where " . $condition;
+		$this->debug->log("Updating record in database with query " . $query, 5);
 		return mysqli_query($this->connection, $query);
 	}
 
 	public function delete ($table, $condition) {
+		$this->debug->log("Deleting record(s) from database with query " . $query, 5);
 		return mysqli_query($this->connection, "delete from " . $table . " where " . $condition);
 	}
 

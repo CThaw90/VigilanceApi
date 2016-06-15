@@ -2,7 +2,6 @@
 
 class FileManager {
 	
-	private $debugger;
 	private $basedir;
 
 	public function __construct($basedir) {
