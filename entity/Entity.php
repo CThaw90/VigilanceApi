@@ -200,7 +200,7 @@ class Entity {
 			else if ($file_type["capture"]) {
 
 				if ($file_type["image"]["png"]) {
-					file_put_contents(".ignore/images/test.png", $value);
+					// file_put_contents(".ignore/images/test.png", $value);
 				}
 			}
 			else {
@@ -219,7 +219,8 @@ class Entity {
 
 		foreach ($form_data_array as $index => $value) {
 			$key = explode("=", urldecode($value));
-			$parsed_data[$key[0]] = $key[1];
+			if (count($key) === 2)
+				$parsed_data[$key[0]] = $key[1];
 		}
 
 		return $parsed_data;

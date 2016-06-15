@@ -50,7 +50,10 @@ class Authentication {
 	}
 
 	public function get_user () {
-		$this->debug->log("[INFO] Retrieving user data for the currently active token [USER_DATA] " . json_encode($_SESSION[$_SESSION[self::$token_key]]), 5);
+		if (isset($_SESSION[self::$token_key])) {
+			$this->debug->log("[INFO] Retrieving user data for the currently active token [USER_DATA] " . json_encode($_SESSION[$_SESSION[self::$token_key]]), 5);
+		}
+		
 		$token = isset ($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : null;
 		return $token !== null ? $_SESSION[$token] : $this->auth_error;
 	}
@@ -107,7 +110,7 @@ class Authentication {
 		return $authorized; 
 	}
 
-	private function authorize_put ($table, $data, $attrs) {
+	public function authorize_put ($table, $data, $attrs) {
 
 		$this->db = new DbConn();
 		$this->db->conn();
@@ -121,7 +124,7 @@ class Authentication {
 		}
 
 		$result = json_decode($this->db->select($query), true);
-		$authorized = count($result) > 0;
+		$authorized = isset($result[0]);
 		foreach ($attrs as $key => $value) {
 		 	if ($authorized && isset($value['authorize'])) {
 		 		$user = $this->get_user();

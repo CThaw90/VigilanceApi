@@ -7,6 +7,10 @@ class ImageController {
 		$this->image = new Image();
 	}
 
+	public function post () {
+		return $this->image->upload();
+	}
+
 	public function url ($folder) {
 		return $this->image->generate_url($folder);
 	}

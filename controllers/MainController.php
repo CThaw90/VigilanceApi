@@ -34,6 +34,8 @@ class MainController {
     private $TOPFIVE_RESOURCE_REGEX = '/^\/vigilance\/api\/topfive\/\d{1,}.*/';
     private $TOPFIVE_OBJECT_REGEX = '/^\/vigilance\/api\/topfive($|\?.*)/';
 
+    private $IMAGE_RESOURCE_REGEX = '/^\/vigilance\/api\/images\/.*?\/\d{1,}.*/';
+
     private $debug;
 
     public function __construct () {
@@ -132,6 +134,10 @@ class MainController {
         }
         else if (preg_match($this->TOPFIVE_OBJECT_REGEX, $_SERVER['REQUEST_URI'])) {
             $controller = new TopFiveController();
+        }
+        else if (preg_match($this->IMAGE_RESOURCE_REGEX, $_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        	$controller = new ImageController();
+        	return $controller->post();
         }
 		else {
 			return $return;

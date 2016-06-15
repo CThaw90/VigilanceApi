@@ -5,9 +5,11 @@ class DbConn {
 	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
 	private $authenticate;
 	private $connection;
+	private $debug;
 
 	public function __construct () {
 		$this->authenticate = new Authentication();
+		$this->debug = new Debugger("DbConn.php");
 	}	
 
 	public function conn () {
@@ -15,6 +17,7 @@ class DbConn {
 	}
 
 	public function select ($query) {
+		$this->debug->log("[INFO] Running mysql query " . $query, 5);
 		$result_set = mysqli_query($this->connection, $query);
 		$result = array();
 		while ($row = mysqli_fetch_array($result_set, MYSQLI_ASSOC)) {
