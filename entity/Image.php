@@ -22,6 +22,64 @@ class Image {
 		$this->debug = new Debugger("Image.php");
 	}
 
+	public function render () {
+		$session = new Authentication();
+		if (!$session->isAuthorized()) {
+			# return $this->auth_error;
+		}
+
+		$this->debug->log("Authentication passed for Image Controller", 5);
+		$url_array = array();
+		preg_match("/^\/vigilance\/api\/images\/(.*?jpg|.*?png|.*?jpeg|.*?gif)/", $_SERVER['REQUEST_URI'], $url_array);
+
+		$img_path = $url_array[1];
+		$this->debug->log("Extracted image path '" . $img_path . "' from request uri", 5);
+		$image_object = false;
+		if (preg_match("/.*?\.jpg($|\?.*)/", $img_path) ||  preg_match("/.*?\.jpeg($|\?.*)/", $img_path)) {
+			$image_object = @imagecreatefromjpeg(Properties::$img_folder . "/" . $img_path);
+			header("Content-Type: image/jpeg");
+			if ($image_object) {
+				$this->debug->log("Successfully created a .jpg image object from extracted file path", 5);
+				imagejpeg($image_object);
+				imagedestroy($image_object);
+			}
+			else {
+				$this->debug->log("Could not find specified image with file path '" . Properties::$img_folder . "/" . $img_path . "'", 5);
+				return '{"status": 404, "message": "This file cannot be retrieved by the server"}';
+			}
+		}
+		else if (preg_match("/.*?\.png($|\?.*)/", $img_path)) {
+			$image_object = @imagecreatefrompng(Properties::$img_folder . "/" . $img_path);
+			header("Content-Type: image/png");
+			if ($image_object) {
+				$this->debug->log("Successfully created a .png image object from extracted file path", 5);
+				imagepng($image_object);
+				imagedestroy($image_object);
+			}
+			else {
+				$this->debug->log("Could not find specified image with file path '" . Properties::$img_folder . "/" . $img_path . "'", 5);
+				return '{"status": 404, "message": "This file cannot be retrieved by the server"}';
+			}
+		}
+		else if (preg_match("/.*?\.gif($|\?.*)/", $img_path)) {
+			$image_object = @imagecreatefromgif(Properties::$img_folder . "/" . $img_path);
+			header("Content-Type: image/gif");
+			if ($image_object) {
+				$this->debug->log("Successfully created a .gif image object from extracted file path", 5);
+				imagegif($image_object);
+				imagedestroy($image_object);
+			}
+			else {
+				$this->debug->log("Could not find specified image with file path '" . Properties::$img_folder . "/" . $img_path . "'", 5);
+				return '{"status": 404, "message": "This file cannot be retrieved by the server"}';
+			}
+		}
+		else {
+			$this->debug->log("This image file type is not supported", 5);
+			return '{"status": 500, "message": "Invalid image file type. Supported image types (gif, jpeg, jpg, png)"}';
+		}
+	}
+
 	public function generate_url ($folder) {
 		$session = new Authentication();
 		$user = $session->session_active() ? $session->get_user() : false;

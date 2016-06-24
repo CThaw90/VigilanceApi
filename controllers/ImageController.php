@@ -7,6 +7,10 @@ class ImageController {
 		$this->image = new Image();
 	}
 
+	public function get () {
+		return $this->image->render();
+	}
+
 	public function post () {
 		return $this->image->upload();
 	}
