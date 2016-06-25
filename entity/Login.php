@@ -37,6 +37,9 @@ class Login extends Entity {
 			return '{"token":"' . $authenticate->get_token() . '", "user": "' . json_encode($authenticate->get_user()) . '"}';
 		}
 
+		$data['username'] = isset($data['username']) ? $data['username'] : 'NULL';
+		$data['password'] = isset($data['password']) ? $data['password'] : 'NULL';
+		
 		$this->debug->log("[WARNING] Incorrect username or password entered username=" . $data['username'] . " password=" . $data['password'], 3);
 		return '{"error": "Bad Username or Password"}';
 	}
