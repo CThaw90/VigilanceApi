@@ -47,6 +47,7 @@ class MainController {
 
 		$this->debug->log("[INFO] Entering Main Controller execution", 5);
 		$this->debug->log("[INFO] Invoked with HTTP REQUEST_METHOD " . $_SERVER['REQUEST_METHOD'], 5);
+		$this->debug->log("[INFO] Requesting resource url '" . $_SERVER['REQUEST_URI'] . "'", 3);
 		$return = '{"status": 404, "error": "Resource not found"}';
 		$controller = null;
 		if (!isset($_SERVER['REDIRECT_URL'])) {
@@ -148,7 +149,6 @@ class MainController {
 			return $return;
 		}
 
-		$this->debug->log("[INFO] Requesting resource url '" . $_SERVER['REQUEST_URI'] . "'", 3);
 		switch ($_SERVER['REQUEST_METHOD']) {
 
 			case 'GET':

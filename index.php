@@ -8,6 +8,8 @@
 
 include 'includes/includes.php';
 
+header("Access-Control-Allow-Origin: *");
+
 $debug = new Debugger("index.php");
 $debug->log(" ------Starting Vigilance Api in Debugger Mode -------", 1);
 
