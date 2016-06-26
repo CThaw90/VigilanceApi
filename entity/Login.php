@@ -34,7 +34,7 @@ class Login extends Entity {
 		if (count($auth)) {
 			$this->debug->log("[INFO] An authorization user entry was found", 5);
 			$authenticate->generate_token($auth[0]);
-			return '{"token":"' . $authenticate->get_token() . '", "user": "' . json_encode($authenticate->get_user()) . '"}';
+			return '{"token":"' . $authenticate->get_token() . '", "user": ' . json_encode($authenticate->get_user()) . '}';
 		}
 
 		$data['username'] = isset($data['username']) ? $data['username'] : 'NULL';
