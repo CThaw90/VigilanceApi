@@ -81,13 +81,13 @@ class Image {
 	}
 
 	public function generate_url ($folder) {
-		$session = new Authentication();
-		$user = $session->session_active() ? $session->get_user() : false;
+		$authentication = new Authentication();
+		$user = $authentication->active() ? $authentication->get_user(false) : false;
 		$image_name = "/default.jpg";
 		if (count(self::$images)) {
 			$this->debug->log("Image object has been uploaded to the cache image array", 5);
 			$image_name = "/" . self::$images["name"];
-			$user_folder = $user ? $user['username'] : $session->get_cache()["username"] ;
+			$user_folder = $user ? $user['username'] : $authentication->get_cache()["username"] ;
 			$this->debug->log("Setting user image folder to " . $user_folder, 5);
 			self::$folder = Properties::$img_folder . $user_folder . $folder;
 			$this->url = Properties::$host_name . $user_folder . $folder . $image_name;

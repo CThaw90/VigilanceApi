@@ -11,9 +11,6 @@ class Logout {
 	public function logoff () {
 		$auth = new Authentication();
 
-		$this->debug->log("[INFO] Authorizing User for logout action", 5);
-		$user = $auth->get_user($auth->get_token());
-
 		$this->debug->log("[INFO] Sending token destroy signal", 5);
 		$auth->destroy_token();
 

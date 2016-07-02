@@ -3,6 +3,7 @@
 class DbConn {
 
 	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
+	private $no_auth = false;
 	private $authenticate;
 	private $connection;
 	private $debug;
@@ -24,7 +25,11 @@ class DbConn {
 			array_push($result, $row);
 		}
 
-		return $this->authenticate->isAuthorized() ? json_encode($result) : $this->auth_error;
+		$return_string = $this->no_auth || $this->authenticate->isAuthorized() ? json_encode($result) : $this->auth_error;
+		$this->debug->log("[INFO] Query results from the database " . $return_string, 5);
+		$this->no_auth = false;
+
+		return $return_string;
 	}
 
 	public function insert ($table, $object) {
@@ -57,12 +62,18 @@ class DbConn {
 	}
 
 	public function delete ($table, $condition) {
+		$query = "delete from " . $table . " where " . $condition;
 		$this->debug->log("Deleting record(s) from database with query " . $query, 5);
-		return mysqli_query($this->connection, "delete from " . $table . " where " . $condition);
+		return mysqli_query($this->connection, $query);
 	}
 
 	public function escape ($string) {
 		return mysqli_real_escape_string($this->connection, $string);
+	}
+
+	public function bypass_auth () {
+		$this->debug->log("[INFO] Setting database query bypass authentication flag to true", 5);
+		$this->no_auth = true;
 	}
 
 	public function close () {

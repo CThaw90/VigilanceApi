@@ -1,10 +1,10 @@
 <?php
 
-session_start();
-
 class Authentication {
 
+	private $get_user_by_token = 'select c.* from credential c join authentication a on c.credential_id = a.credential_id where a.token = ';
 	private $auth_error = '{"status": 403, "error": "Permission Denied. You do not have access to this resource"}';
+	private $check_for_auth = 'select * from authentication where credential_id = ${1}';
 	private $debug;
 	private $db;
 
@@ -15,25 +15,22 @@ class Authentication {
 		$this->debug = new Debugger("Authentication.php");
 	}
 
+	public function active () {
+		$headers = getallheaders();
+		return isset($headers[self::$token_key]);
+	}
+
 	public function generate_token ($user) {
-		if (!isset($_SESSION[self::$token_key])) {
+		$token = $this->user_is_logged_in($user["credential_id"]);
+		if (!$token) {
+			$this->debug->log("[INFO] No token for current user exists. Generating a new token", 5);
 			$token = sha1(json_encode($user) . time());
-			$_SESSION[self::$token_key] = $token;
-			$_SESSION[$token] = $user;
+			$this->db = new DbConn();
+			$this->db->conn();
+			$this->db->insert("authentication", array("credential_id" => $user["credential_id"], "token" => $token));
 		}
-	}
 
-	public function session_active () {
-		$this->debug->log(isset($_SESSION[self::$token_key]) ? ("[INFO] Currently Active [TOKEN] " . $_SESSION[self::$token_key]) : "[INFO] No TOKEN currently active", 5);
-		$this->debug->log(isset($_SESSION[self::$token_key]) ? ("[INFO] Currently Active [USER] " . 
-			json_encode($_SESSION[$_SESSION[self::$token_key]])) : "[INFO] No [USER] currently active", 5);
-
-		return isset($_SESSION[self::$token_key]);
-	}
-
-	public function ignore () {
-		$this->debug->log("[WARNING] Invoked authentication ignore flag. System will by pass authentication", 2);
-		$_SESSION['ignore'] = 1;
+		return $token;
 	}
 
 	public function store_cache ($data) {
@@ -44,37 +41,38 @@ class Authentication {
 		return self::$cache;
 	}
 
-	public function get_token () {
-		$this->debug->log("[INFO] Retrieving token for currently logged in user [TOKEN] " . json_encode($_SESSION[self::$token_key]) , 5);
-		return isset ($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : null;
-	}
-
-	public function get_user () {
-		if (isset($_SESSION[self::$token_key])) {
-			$this->debug->log("[INFO] Retrieving user data for the currently active token [USER_DATA] " . json_encode($_SESSION[$_SESSION[self::$token_key]]), 5);
+	public function get_user ($token) {
+		$headers = getallheaders();
+		$token = $token ? $token : $headers[self::$token_key];
+		$this->db = new DbConn();
+		$this->db->conn();
+		$this->db->bypass_auth();
+		$result = json_decode($this->db->select($this->get_user_by_token . "'" . $token . "'"), true);
+		if (isset($result[0])) {
+			$this->debug->log("[INFO] Retrieving user data for the currently active token [USER_DATA] " . $token, 5);
+			return $result[0];
 		}
-		
-		$token = isset ($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : null;
-		return $token !== null ? $_SESSION[$token] : $this->auth_error;
+
+		return $this->auth_error;
 	}
 
 	public function isAuthorized () {
-		$ignore = isset($_SESSION['ignore']) ? $_SESSION['ignore'] : 0;
-		if ($ignore) $this->debug->log("[INFO] Authentication ignore flag is set. By Passing Authentication Params", 2);
-		
 		$headers = getallheaders();
-		$_SESSION['ignore'] = 0;
+		if (!isset($headers[self::$token_key])) {
+			return false;
+		}
 
 		$this->debug->log("[INFO] Retrieved Headers object " . json_encode($headers), 4);
-		$this->debug->log("[INFO] SESSION TOKEN " . (isset($_SESSION[self::$token_key]) ? "is" : "not") . " set", 5);
-		$this->debug->log("[INFO] Matching TOKEN " . (isset($_SESSION[self::$token_key]) ? $_SESSION[self::$token_key] : "NULL") 
-			. " against " . (isset($headers[self::$token_key]) ? $headers[self::$token_key] : "NULL"), 5);
-
-		if ((isset($_SESSION[self::$token_key]) && isset($headers[self::$token_key]) && $headers[self::$token_key] === $_SESSION[self::$token_key]))
+		$this->db = new DbConn();
+		$this->db->conn();
+		$this->db->bypass_auth();
+		$result = json_decode($this->db->select($this->get_user_by_token . "'" . $headers[self::$token_key] . "'"), true);
+		if (isset($result[0])) {
 			$this->debug->log("[INFO] Authentication Passed. Access is authorized", 3);
+			return true;
+		}
 
-		return (isset($_SESSION[self::$token_key]) && isset($headers[self::$token_key]) 
-			&& $headers[self::$token_key] === $_SESSION[self::$token_key]) || $ignore;
+		return false;
 	}
 
 	public function authorize_action ($table, $data, $attrs) {
@@ -102,7 +100,7 @@ class Authentication {
 		$authorized = true;
 		foreach ($attrs as $key => $value) {
 			if ($authorized && isset($value['authorize'])) {
-				$user = $this->get_user();
+				$user = $this->get_user(false);
 				$authorized = ($data[$key] == $user[$key]);
 			}
 		}
@@ -127,7 +125,7 @@ class Authentication {
 		$authorized = isset($result[0]);
 		foreach ($attrs as $key => $value) {
 		 	if ($authorized && isset($value['authorize'])) {
-		 		$user = $this->get_user();
+		 		$user = $this->get_user(false);
 		 		$authorized = ($result[0][$key] == $user[$key]);
 		 	}
 		}
@@ -140,7 +138,35 @@ class Authentication {
 		return $this->authorize_put($table, $data, $attrs);
 	}
 
+	private function user_is_logged_in ($id) {
+		$this->db = new DbConn();
+		$this->db->conn();
+		$this->db->bypass_auth();
+		$result = json_decode($this->db->select(preg_replace("/(\d+)/", $this->check_for_auth, $id)), true);
+		if (isset($result[0])) {
+			$auth = $result[0];
+			$this->debug->log("[INFO] This user is already logged in with token " . $auth["token"], 5);
+			return $auth["token"];
+		}
+
+		return false;
+	}
+
 	public function destroy_token () {
-		session_destroy();
+		$headers = getallheaders();
+		if ($this->active()) {
+			$this->db = new DbConn();
+			$this->db->conn();
+			$token = json_decode($this->db->select ("select * from authentication where token = '" . $headers[self::$token_key] . "'"), true);
+			if (isset($token[0])) {
+				$this->debug->log("[INFO] User token found. Destroying token " . $headers[self::$token_key], 5);
+				$this->db->delete("authentication", "credential_id = " . $token[0]["credential_id"]);
+
+				return true;
+			}
+		}
+
+		$this->debug->log("[INFO] No User token found with string identifier " . $headers[self::$token_key], 5);
+		return false;
 	}
 }
