@@ -168,7 +168,9 @@ class MainController {
 
 			case 'DELETE':
 				preg_match("/\d{1,}/", $_SERVER['REQUEST_URI'], $matched);
-				$return = $controller->delete($matched[0]);
+
+				if (isset($matched[0]))
+					$return = $controller->delete($matched[0]);
 				break;
 
 			default:
