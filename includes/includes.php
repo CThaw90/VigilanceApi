@@ -6,6 +6,7 @@ include_once 'auth/Authentication.php';
 # PHP Controllers
 include_once 'controllers/OrganizationController.php';
 include_once 'controllers/TopFiveController.php';
+include_once 'controllers/OptionsController.php';
 include_once 'controllers/CommentController.php';
 include_once 'controllers/SchoolController.php';
 include_once 'controllers/CourseController.php';
@@ -20,6 +21,7 @@ include_once 'controllers/MainController.php';
 include_once 'entity/Entity.php';
 include_once 'entity/Organization.php';
 include_once 'entity/TopFive.php';
+include_once 'entity/Option.php';
 include_once 'entity/Comment.php';
 include_once 'entity/Course.php';
 include_once 'entity/School.php';
