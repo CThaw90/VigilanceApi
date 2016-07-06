@@ -54,6 +54,10 @@ class MainController {
 			$this->debug->log("[FATAL] Server did not redirect url. Check .htaccess configurations", 1);
 			return '{"error": "No resource requested"}';
 		}
+		else if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			$controller = new OptionController();
+			return $controller->options();
+		}
 		else if (preg_match($this->BASE_API_URL_ONLY_REGEX, $_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
 			$this->debug->log("[INFO] Hit heart beat server api url check", 4);
 			return '{"success": 200, "message": "Vigilance Api is up and running"}';
